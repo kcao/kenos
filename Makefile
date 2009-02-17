@@ -23,7 +23,7 @@ LD		=	ld
 OBJCOPY		=	objcopy
 
 BFLAGS		=	-I boot/include -c
-CFLAGS		=	-I include -c -fno-builtin
+CFLAGS		=	-I include -c -fno-builtin -fno-stack-protector
 TRIM_FLAGS	=	-R .pdr -R .comment -R .note -S -O binary
 
 LDFILE_BOOT	=	boot/x86_boot.ld
