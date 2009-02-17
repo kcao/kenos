@@ -18,59 +18,99 @@
 # *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 # ***************************************************************************
 
-CC=gcc
-LD=ld
-OBJCOPY=objcopy
+CC		=	gcc
+LD		=	ld
+OBJCOPY		=	objcopy
 
-CFLAGS=-c
-TRIM_FLAGS=-R .pdr -R .comment -R .note -S -O binary
+BFLAGS		=	-I boot/include -c
+CFLAGS		=	-I include -c -fno-builtin
+TRIM_FLAGS	=	-R .pdr -R .comment -R .note -S -O binary
 
-LDFILE_BOOT=x86_boot.ld
-LDFILE_LDR=x86_ldr.ld
-LDFILE_KER=x86_ker.ld
-LDFLAGS_BOOT=-e c -T $(LDFILE_BOOT)
-LDFLAGS_LDR=-e c -T $(LDFILE_LDR)
-LDFLAGS_KER=-e c -T $(LDFILE_KER)
+LDFILE_BOOT	=	boot/x86_boot.ld
+LDFILE_LDR	=	boot/x86_ldr.ld
+LDFILE_KER	=	kernel/x86_ker.ld
 
-all: boot.img LOADER.BIN KERNEL.BIN
+LDFLAGS_BOOT	=	-s -T $(LDFILE_BOOT)
+LDFLAGS_LDR	=	-s -T $(LDFILE_LDR)
+LDFLAGS_KER	=	-s -e c -T $(LDFILE_KER)
 
-boot.bin: boot.S
-	$(CC) $(CFLAGS) boot.S
-	$(LD) boot.o -o boot.elf $(LDFLAGS_BOOT)
-	$(OBJCOPY) $(TRIM_FLAGS) boot.elf $@
+BINCLUDE	=	boot/include/addr.h boot/include/fat12hdr.h \
+			boot/include/lib.h boot/include/pm.h
 
-LOADER.BIN: loader.S
-	$(CC) $(CFLAGS) loader.S
-	$(LD) loader.o -o loader.elf $(LDFLAGS_LDR)
-	$(OBJCOPY) $(TRIM_FLAGS) loader.elf $@
+BOOTFILE	=	boot/boot.bin boot/LOADER.BIN
+KERNELFILE	=	KERNEL.BIN
+OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o kernel/protect.o \
+			kernel/global.o \
+			lib/klib.o lib/klibc.o lib/string.o
+			
+BOBJS		=	boot/boot.o boot/boot.elf boot/loader.o boot/loader.elf
+
+.PHONY: all clean dclean
+
+all: boot.img $(BOOTFILE) $(KERNELFILE)
+
+#
+boot/boot.bin: boot/boot.S $(BINCLUDE)
+	$(CC) $(BFLAGS) $< -o boot/boot.o
+	$(LD) boot/boot.o -o boot/boot.elf $(LDFLAGS_BOOT)
+	$(OBJCOPY) $(TRIM_FLAGS) boot/boot.elf $@
+
+boot/LOADER.BIN: boot/loader.S $(BINCLUDE)
+	$(CC) $(BFLAGS) $< -o boot/loader.o
+	$(LD) boot/loader.o -o boot/loader.elf $(LDFLAGS_LDR)
+	$(OBJCOPY) $(TRIM_FLAGS) boot/loader.elf $@
+
+#
+lib/string.o: lib/string.S
+	$(CC) $(CFLAGS) $< -o $@
 	
-KERNEL.BIN: kernel.S
-	$(CC) $(CFLAGS) kernel.S
-	$(LD) kernel.o -o kernel.elf $(LDFLAGS_KER)
-	$(OBJCOPY) $(TRIM_FLAGS) kernel.elf $@
+lib/klib.o: lib/klib.S
+	$(CC) $(CFLAGS) $< -o $@
 
-boot.img: boot.bin
-	dd if=boot.bin of=boot.img bs=512 count=1
+lib/klibc.o:lib/klib.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/kernel.o: kernel/kernel.S
+#	nasm -f elf -o kernel/kernel.o kernel/kernel.asm
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/start.o: kernel/start.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/i8259.o: kernel/i8259.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/protect.o: kernel/protect.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/global.o: kernel/global.c
+	$(CC) $(CFLAGS) $< -o $@
+	
+$(KERNELFILE): $(OBJS)
+	$(LD) $(LDFLAGS_KER) $(OBJS) -o $@
+#	$(LD) -s -Ttext 0x30400 $(OBJS) -o $@
+
+boot.img: boot/boot.bin
+	dd if=boot/boot.bin of=boot.img bs=512 count=1
 	dd if=/dev/zero of=boot.img skip=1 seek=1 bs=512 count=2879
 
 # run the os using bochs
 run: bochsrc.bxrc boot.img
 	bochs -f bochsrc.bxrc
 
-# you must have the authority to mount, 'sudo make copy', or 
-# you must run 'make copy' as root.
-copy: boot.img LOADER.BIN
+# You must have the authority to do mount, or you must use "su root" 
+#	or "sudo" command to do "make copy"
+copy: boot.img boot/LOADER.BIN KERNEL.BIN
 	mkdir -p tmp;\
 	mount -o loop boot.img tmp/ -o fat=12;\
-	cp LOADER.BIN tmp/;\
+	cp boot/LOADER.BIN tmp/;\
 	cp KERNEL.BIN tmp/;\
 	umount tmp;\
-	rm -rf tmp/;
+	rm -rf tmp;
 
 clean: 
-	rm -f *.o *.elf *.bin *.BIN
+	rm -f $(OBJS) $(BOBJS)
 
 dclean:
-	rm -f *.img
-
+	rm -f $(BOBJS) $(OBJS) $(BOOTFILE) $(KERNELFILE) boot.img bochsout.txt
 

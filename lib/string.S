@@ -1,19 +1,10 @@
 /***************************************************************************
- * original Copyright (C) 2008 by Wenbo Yang 
-   <solrex@gmail.com> <http://solrex.cn>
-
-   This file is part of the source code of book "Write Your Own OS with Free
-   and Open Source Software". Homepage @ <http://share.solrex.cn/WriteOS/>.
-
-   This file is licensed under the GNU General Public License; either
-   version 3 of the License, or (at your option) any later version.
- ***************************************************************************
- *   Edit by Cao, Chen - 2009                                              *
+ *   Copyright (C) 2009 by Cao, Chen                                       *
  *   ken.ccao@gmail.com                                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 3 of the License, or     *
+ *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
@@ -27,12 +18,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-SECTIONS
-{
-    . = 0x0100;
-    
-    .text :
-    {
-        _ftext = .;
-    } = 0
-}
+/* string.S */
+.section .text
+
+.type memcpy, @function
+.globl	memcpy
+/* void* memcpy(void* es:pDest, void* ds:pSrc, int iSize); */
+memcpy:
+	push	%ebp
+	mov	%esp, %ebp
+	
+	push	%esi
+	push	%edi
+	push	%ecx
+	
+	mov	8(%ebp), %edi	/* dest */
+	mov	12(%ebp), %esi	/* src */
+	mov	16(%ebp), %ecx	/* counter */
+.m_c1:
+	cmp	$0, %ecx
+	jz	.m_c2
+	
+	/* move byte after byte*/
+	movb	%ds:(%esi), %al
+	inc	%esi
+
+	movb	%al, %es:(%edi)
+	inc	%edi
+	
+	dec	%ecx
+	jmp	.m_c1
+.m_c2:
+	mov	8(%ebp), %eax	/* the return value */
+	
+	pop	%ecx
+	pop	%edi
+	pop	%esi
+	mov	%ebp, %esp
+	pop	%ebp
+	
+	ret
+	

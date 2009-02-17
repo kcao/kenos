@@ -1,0 +1,28 @@
+7
+|-- 0_bochs
+|   |-- bochsrc.bxrc
+|   `-- bx
+|-- boot
+|   |-- include
+|   |   |-- addr.h
+|   |   |-- fat12hdr.h
+|   |   |-- lib.h
+|   |   `-- pm.h
+|   |-- Makefile
+|   |-- boot.S
+|   |-- loader.S
+|   |-- x86_boot.ld
+|   `-- x86_ldr.ld
+|-- include
+|   |-- const.h
+|   |-- protect.h
+|   `-- type.h
+|-- kernel
+|   |-- kernel.S
+|   |-- start.c
+|   `-- x86_ker.ld
+|-- lib
+|   |-- klib.S
+|   `-- string.S
+|-- Makefile
+`-- README
