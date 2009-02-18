@@ -20,21 +20,19 @@
  
 /* kernel.S */
 
-.set	SELECTOR_KERNEL_CS, 8
 
+#include "sconst.h"
 /* 
 // globl funcs
-extern	cstart
-extern	exception_handler
-extern	spurious_irq
 
 // globl variables
-extern	gdt_ptr
-extern	idt_ptr
-extern	disp_pos
+
 */
 
 .code32
+
+.section .data
+clock_int_msg:	.byte	'^'
 
 .section .bss
 StackSpace:
@@ -80,6 +78,9 @@ StackTop:
 .globl	hwint14
 .globl	hwint15
 
+.globl	restart
+.globl	sys_call
+
 _start:
 /*	mov	$0xb800,%ax
 	movw	%ax,%gs		
@@ -94,9 +95,10 @@ _start:
 	movl	$0, (disp_pos)
 
 	sgdt	gdt_ptr
+	
 	call	cstart
+	
 	lgdtw	gdt_ptr
-
 	lidtw	idt_ptr
 
 	jmp	$SELECTOR_KERNEL_CS, $csinit
@@ -105,29 +107,74 @@ csinit:
 	popfl	*/	/* Pop top of stack into EFLAGS */
 	
 /* error opcodes to make exceptions */
-//	jmp $0x40, $0	
-//	ud2		//undefined interrupt */
+/*
+//	jmp	$0x40, $0	
+//	ud2	//undefined interrupt
 	
-	sti
-	
-	hlt
+//	sti
+*/
+	xor	%eax, %eax
+	mov	$SELECTOR_TSS, %ax
+	ltrw	%ax
+
+	jmp	kenos_main
+
+//	hlt
 
 
-/* ----------- */
+/* ------ hwint_master ------ */
 .macro hwint_master Irq
-	push	\Irq
+/*	push	\Irq
 	call	spurious_irq
 	add	$4, %esp
 	hlt
+*/
+	call	save
+
+	/* do not allow irq \Irq */
+	inb	$INT_M_CTLMASK, %al
+	or	$(1 << \Irq), %al
+	outb	%al, $INT_M_CTLMASK
+	
+/*	incb	%gs:0	*/
+
+	/* reenable master 8259, set EOI */
+	movb	$EOI, %al
+	outb	%al, $INT_M_CTL
+	
+	/* int will be turned off automatically, when cpu is responsing
+	  the int. 'sti' makes new int allowed */
+	sti
+	
+	/* the interrupt handler */
+	push	$(\Irq)
+/*	mov	$irq_table, %eax	*/
+	leal	irq_table, %eax
+	call	*(4 * (\Irq))(%eax)
+/*	call	[irq_table + 4 * %1]	*/
+	pop	%ecx
+//	call	clock_handler
+//	add	$4, %esp
+
+
+	cli
+	
+	/* allow irq 0 again */
+	inb	$INT_M_CTLMASK, %al
+	andb	$~(1 << \Irq), %al
+	outb	%al, $INT_M_CTLMASK
+	
+	ret	/* jmp to (call) restart_reenter when reenter, 
+		  otherwise, jmp to (call) restart */
 .endm
 
-
+/* ----- */
 .align 16
-hwint00:		// Interrupt routine for irq 0 (the clock).
+hwint00:		/* Interrupt routine for irq 0 (the clock). */
 	hwint_master	0
 
 .align 16
-hwint01:		// Interrupt routine for irq 1 (keyboard)
+hwint01:		/* Interrupt routine for irq 1 (keyboard)	*/
 	hwint_master	1
 
 .align 16
@@ -155,15 +202,15 @@ hwint07:		// Interrupt routine for irq 7 (printer)
 	hwint_master	7
 
 
-
+/* ------ hwint_slave ------ */
 .macro hwint_slave Irq
 	push	\Irq
 	call	spurious_irq
-	add		$4, %esp
+	add	$4, %esp
 	hlt
 .endm
 
-
+/* ----- */
 .align 16
 hwint08:		// Interrupt routine for irq 8 (realtime clock).
 	hwint_slave	8
@@ -262,8 +309,96 @@ exception:
 	call	exception_handler
 	add	$8, %esp	// 'add	esp, 4*2' 
 	// let the top of stack point to EIP
-	// then the stack will look like this: form top to bottom, 
+	// then the stack will look like this: form top to bottom,
 	// EIP、CS、EFLAGS
+	
 	hlt
 
+
+/* save() */
+save:
+	/* store the value of original registers */
+	pushal
+	push	%ds
+	push	%es
+	push	%fs
+	push	%gs
+	
+	mov	%ss, %dx
+	mov	%dx, %ds
+	mov	%dx, %es
+
+	mov	%esp, %esi	/* %eax = the addr of proc table */
+	
+	incl	(k_reenter)
+	cmpl	$0, (k_reenter)		/* if (k_reenter == 0) */
+	jne	.sv1
+
+	mov	$StackTop, %esp		/* switch to the stack of kernel */
+	push	$restart
+	jmp	*(RETADR - P_STACKBASE)(%esi)	/* return, no reenter */
+/*	jmp	[eax + RETADR - P_STACKBASE]	*/
+.sv1:
+	/* already in the stack of kernel */
+	push	$restart_reenter
+	jmp	*(RETADR - P_STACKBASE)(%esi)	/* return, reenter  */
+
+/* the end of save() */
+
+
+/* sys_call() */
+sys_call:
+	call	save
+	
+	pushl	(p_proc_ready)
+	/* the current process is resumed by setting p_proc_ready,
+	  so before the switching, the value of p_proc_ready is the 
+	  ptr that points to the current process.
+	  pushing it means passing the ptr to current process which 
+	  is the caller of write(), to sys_write(). */
+
+	sti
+	
+	/* pass the parameters */
+	push	%ecx
+	push	%ebx
+	
+/*	call	[sys_call_table + eax * 4]	*/
+	leal	sys_call_table, %ebx
+	mov	%eax, %ecx
+	shll	$2, %ecx
+	addl	%ecx, %ebx
+	call	*(%ebx)
+	/* call sys_xxx() */
+	
+	add	$(4 * 3), %esp
+
+/*	mov	[esi + EAXREG - P_STACKBASE], eax	*/
+	mov	%eax, (EAXREG - P_STACKBASE)(%esi)
+
+	cli
+
+	ret
+
+
+
+/* void restart() */
+restart:
+	mov	(p_proc_ready), %esp	/* leave the stack of kernel */
+	lldtw	P_LDT_SEL(%esp)
+	
+	/* assign xx to tss.esp0 before the handler exit.
+	  and the contain of tss.esp0 is a ptr to some stack. */
+	leal	P_STACKTOP(%esp), %eax
+	movl	%eax, (tss + TSS3_S_SP0)
+restart_reenter:	/* if k_reenter != 0 */
+	decl	(k_reenter)
+	pop	%gs
+	pop	%fs
+	pop	%es
+	pop	%ds
+	popal
+	add	$4, %esp	/* jump over the value of 'retaddr' */
+	iretl	/* jump from ring0 to ring1*/
+/* the end of restart() */
 

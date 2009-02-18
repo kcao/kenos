@@ -8,7 +8,7 @@
    This file is licensed under the GNU General Public License; either
    version 3 of the License, or (at your option) any later version.
  ***************************************************************************
- *   Edit by Cao, Chen - 2009                                              *
+ *   Modified by Cao, Chen - 2009                                          *
  *   ken.ccao@gmail.com                                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -295,3 +295,4 @@ LABEL_GET_FAT_ENTRY_OK:
 
 .org 510        /* go to address 0x510. */
 .2byte 0xaa55   /* write boot flag to the end of 1st sector(512 bytes) */
+

@@ -1,28 +1,58 @@
-7
-|-- 0_bochs
-|   |-- bochsrc.bxrc
-|   `-- bx
+.
+|--  kenos --username cc.5nth
+|-- AUTHORS
+|-- COPYING
+|-- ChangeLog
+|-- FileTree
+|-- INSTALL
+|-- Makefile
+|-- NEWS
+|-- README
+|-- TODO
+|-- bochsrc.bxrc
 |-- boot
+|   |-- Makefile
+|   |-- boot.S
 |   |-- include
 |   |   |-- addr.h
 |   |   |-- fat12hdr.h
 |   |   |-- lib.h
 |   |   `-- pm.h
-|   |-- Makefile
-|   |-- boot.S
 |   |-- loader.S
 |   |-- x86_boot.ld
 |   `-- x86_ldr.ld
 |-- include
+|   |-- console.h
 |   |-- const.h
+|   |-- global.h
+|   |-- keyboard.h
+|   |-- keymap.h
+|   |-- proc.h
 |   |-- protect.h
+|   |-- proto.h
+|   |-- sconst.h
+|   |-- string.h
+|   |-- tty.h
 |   `-- type.h
 |-- kernel
+|   |-- clock.c
+|   |-- console.c
+|   |-- global.c
+|   |-- i8259.c
 |   |-- kernel.S
+|   |-- keyboard.c
+|   |-- main.c
+|   |-- printf.c
+|   |-- proc.c
+|   |-- protect.c
 |   |-- start.c
+|   |-- syscall.S
+|   |-- tty.c
+|   |-- vsprintf.c
 |   `-- x86_ker.ld
-|-- lib
-|   |-- klib.S
-|   `-- string.S
-|-- Makefile
-`-- README
+`-- lib
+    |-- klib.S
+    |-- klib.c
+    `-- string.S
+
+6 directories, 49 files

@@ -1,0 +1,27 @@
+
+1.
+print 'Loading^^'
+
+2.
+Get the size of memory
+
+
+3.
+Find KERNEL.BIN in root directory of driver 0
+
+4.
+                                                       real mode
+---------------------------------------------------------------------
+jump to kernel (jump to protected mode)                protected mode
+
+
+5.
+display memory info,
+SetupPaging
+
+
+6.
+InitKernel
+
+
+

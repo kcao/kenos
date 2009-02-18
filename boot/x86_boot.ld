@@ -8,7 +8,7 @@
    This file is licensed under the GNU General Public License; either
    version 3 of the License, or (at your option) any later version.
  ***************************************************************************
- *   Edit by Cao, Chen - 2009                                              *
+ *   Modified by Cao, Chen - 2009                                          *
  *   ken.ccao@gmail.com                                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *

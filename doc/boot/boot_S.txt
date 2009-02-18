@@ -1,0 +1,13 @@
+
+1.
+print "Booting**"
+
+2.
+find the loader
+
+3.
+jump to loader
+
+
+-------
+all in real mode

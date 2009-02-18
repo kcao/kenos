@@ -21,12 +21,16 @@
 /* string.S */
 .section .text
 
-.type memcpy, @function
 .globl	memcpy
+.globl	memset
+.globl	strcpy
+.globl	strlen
+
 /* void* memcpy(void* es:pDest, void* ds:pSrc, int iSize); */
+.type memcpy, @function
 memcpy:
 	push	%ebp
-	mov	%esp, %ebp
+	mov		%esp, %ebp
 	
 	push	%esi
 	push	%edi
@@ -58,4 +62,81 @@ memcpy:
 	pop	%ebp
 	
 	ret
+
+
+/* void memset(void* p_dst, char ch, int size); */
+.type memset, @function
+memset:
+	push	%ebp
+	mov	%esp, %ebp
+
+	push	%esi
+	push	%edi
+	push	%ecx
+
+	mov	8(%ebp), %edi	//Dest
+	mov	12(%ebp), %edx	//char to be put
+	mov	16(%ebp), %ecx	//counter
+.m_s1:
+	cmp	$0, %ecx
+	jz	.m_s2
+
+	movb	%dl, (%edi)
+	inc	%edi
+
+	dec	%ecx
+	jmp	.m_s1
+.m_s2:
+	pop	%ecx
+	pop	%edi
+	pop	%esi
+	mov	%ebp, %esp
+	pop	%ebp
+
+	ret
+
+
 	
+/* char* strcpy(char* p_dst, char* p_src); */
+.type strcpy, @function
+strcpy:
+	push	%ebp
+	mov	%esp, %ebp
+	
+	mov	12(%ebp), %esi	/* src */
+	mov	8(%ebp), %edi	/* dest */
+.s_c1:
+	/* move byte by byte */
+	mov	(%esi), %al
+	inc	%esi
+	movb	%al, (%edi)
+	inc	%edi
+	
+	cmp	$0, %al		/* if encounter a '\0', exit */
+	jnz	.s_c1
+	
+	mov	8(%ebp), %eax	/* the return value */
+	
+	pop	%ebp
+	ret
+/* the end of strcpy() */
+
+
+/* int strlen(char* p_str); */
+.type strlen, @function
+strlen:
+	push	%ebp
+	mov	%esp, %ebp
+	
+	mov	$0, %eax	/* the initial value of len is zero*/
+	mov	8(%ebp), %esi	/* %esi point to the head addr */
+.sl1:
+	cmpb	$0, (%esi)	/* if (%esi) == '\0'*/
+	jz	.sl2		/* if (%esi) == '\0', then exit */
+	inc	%esi		/* if (%esi) != '\0', then point to next char */
+	inc	%eax		/*   and %eax++*/
+	jmp	.sl1		/* loop */
+.sl2:
+	pop	%ebp
+	ret
+/* end ofstrlen() */

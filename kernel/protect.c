@@ -8,11 +8,18 @@
 #include "type.h"
 #include "const.h"
 #include "protect.h"
+#include "proc.h"
+#include "tty.h"
+#include "console.h"
 #include "global.h"
+#include "proto.h"
 
 
 /* proto in this file */
-PRIVATE void init_idt_desc(unsigned char vector, t_8 desc_type, t_pf_int_handler handler, unsigned char privilege);
+PRIVATE void init_idt_desc(unsigned char vector, t_8 desc_type, 
+		t_pf_int_handler handler, unsigned char privilege);
+PRIVATE void init_descriptor(DESCRIPTOR * p_desc, t_32 base, 
+		t_32 limit, t_16 attribute);
 
 
 /* interrupt handles */
@@ -92,6 +99,32 @@ PUBLIC void init_prot()
 	init_idt_desc(INT_VECTOR_IRQ8 + 5,	DA_386IGate, hwint13,			PRIVILEGE_KRNL);
 	init_idt_desc(INT_VECTOR_IRQ8 + 6,	DA_386IGate, hwint14,			PRIVILEGE_KRNL);
 	init_idt_desc(INT_VECTOR_IRQ8 + 7,	DA_386IGate, hwint15,			PRIVILEGE_KRNL);
+	
+	init_idt_desc(INT_VECTOR_SYS_CALL,	DA_386IGate, sys_call,			PRIVILEGE_USER);
+
+	/* fill up the descriptor in GDT */
+	memset(&tss, 0, sizeof(tss));
+	tss.ss0 = SELECTOR_KERNEL_DS;
+	
+	init_descriptor(&gdt[INDEX_TSS],
+			vir2phys(seg2phys(SELECTOR_KERNEL_DS), &tss),
+			sizeof(tss) - 1,
+			DA_386TSS);
+	tss.iobase = sizeof(tss); /* there is no i/o permission bitmap */
+
+	// fillup the every LDT of the process in GDT
+	int i;
+	PROCESS* p_proc	= proc_table;
+	t_16 selector_ldt = INDEX_LDT_FIRST << 3;
+	for(i=0; i<NR_TASKS + NR_PROCS; i++){
+		init_descriptor(&gdt[selector_ldt >>3 ],
+				vir2phys(seg2phys(SELECTOR_KERNEL_DS),
+						proc_table[i].ldts),
+				LDT_SIZE * sizeof(DESCRIPTOR) - 1,
+				DA_LDT);
+		p_proc++;
+		selector_ldt += 1 << 3;
+	}
 }
 
 
@@ -100,7 +133,8 @@ PUBLIC void init_prot()
  *----------------------------------------------------------------------*
 	initialize 386 interrupt gate
  *======================================================================*/
-PUBLIC void init_idt_desc(unsigned char vector, t_8 desc_type, t_pf_int_handler handler, unsigned char privilege)
+PUBLIC void init_idt_desc(unsigned char vector, t_8 desc_type, 
+			t_pf_int_handler handler, unsigned char privilege)
 {
 	GATE *	p_gate	= &idt[vector];
 	t_32	base	= (t_32)handler;
@@ -111,11 +145,43 @@ PUBLIC void init_idt_desc(unsigned char vector, t_8 desc_type, t_pf_int_handler 
 	p_gate->offset_high	= (base >> 16) & 0xFFFF;
 }
 
+/*======================================================================*
+                           seg2phys
+ *----------------------------------------------------------------------*
+ get the absolute addr by the seg
+ *======================================================================*/
+PUBLIC t_32 seg2phys(t_16 seg)
+{
+	DESCRIPTOR* p_dest = &gdt[seg >> 3];
+
+	return	(p_dest->base_high << 24) |
+		(p_dest->base_mid << 16) |
+		(p_dest->base_low);
+}
+
+/*======================================================================*
+                           init_descriptor
+ *----------------------------------------------------------------------*
+ *======================================================================*/
+PRIVATE void init_descriptor(DESCRIPTOR * p_desc, t_32 base, t_32 limit, t_16 attribute)
+{
+	p_desc->limit_low	= limit & 0x0FFFF;	// limit1 (2-bytes)
+	p_desc->base_low	= base & 0x0FFFF;	// base1 (2-bytes)
+	p_desc->base_mid	= (base >> 16) & 0x0FF;	// base2 (1-byte)
+	p_desc->attr1		= attribute & 0xFF;	// attribute1
+	p_desc->limit_high_attr2= ((limit >> 16) & 0x0F) |
+					(attribute >> 8) & 0xF0;
+	// limit2 + attr2
+	
+	p_desc->base_high	= (base >> 24) & 0x0FF;	// base3 (1-byte)
+}
+
 
 /*======================================================================*
                             exception_handler
  *======================================================================*/
-PUBLIC void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
+PUBLIC void exception_handler(int vec_no, int err_code, int eip,
+				int cs, int eflags)
 {
 	int i;
 	int text_color = 0x74; // fg: red, bg: gray
@@ -143,30 +209,30 @@ PUBLIC void exception_handler(int vec_no, int err_code, int eip, int cs, int efl
 */
 
 	char *err_description[20] = { "#DE Divide Error",
-					"#DB RESERVED",
-					"—  NMI Interrupt",
-					"#BP Breakpoint",
-					"#OF Overflow",
-					"#BR BOUND Range Exceeded",
-					"#UD Invalid Opcode (Undefined Opcode)",
-					"#NM Device Not Available (No Math Coprocessor)",
-					"#DF Double Fault",
-					"    Coprocessor Segment Overrun (reserved)",
-					"#TS Invalid TSS",
-					"#NP Segment Not Present",
-					"#SS Stack-Segment Fault",
-					"#GP General Protection",
-					"#PF Page Fault",
-					"—  (Intel reserved. Do not use.)",
-					"#MF x87 FPU Floating-Point Error (Math Fault)",
-					"#AC Alignment Check",
-					"#MC Machine Check",
-					"#XF SIMD Floating-Point Exception"
-				};
+			"#DB RESERVED",
+			"—  NMI Interrupt",
+			"#BP Breakpoint",
+			"#OF Overflow",
+			"#BR BOUND Range Exceeded",
+			"#UD Invalid Opcode (Undefined Opcode)",
+			"#NM Device Not Available (No Math Coprocessor)",
+			"#DF Double Fault",
+			"    Coprocessor Segment Overrun (reserved)",
+			"#TS Invalid TSS",
+			"#NP Segment Not Present",
+			"#SS Stack-Segment Fault",
+			"#GP General Protection",
+			"#PF Page Fault",
+			"—  (Intel reserved. Do not use.)",
+			"#MF x87 FPU Floating-Point Error (Math Fault)",
+			"#AC Alignment Check",
+			"#MC Machine Check",
+			"#XF SIMD Floating-Point Exception"
+			};
 
 	/* print whitespaces to clean the screen, and set 'disp_pos' to 0 */
 	disp_pos = 0;
-	for(i=0;i<80*5;i++){
+	for(i=0; i< 80 * 5; i++){
 		disp_str(" ");
 	}
 	disp_pos = 0;
@@ -187,4 +253,3 @@ PUBLIC void exception_handler(int vec_no, int err_code, int eip, int cs, int efl
 	}
 
 }
-

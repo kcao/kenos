@@ -1,0 +1,19 @@
+
+add a element in task_table (global.c)
+
+add 1 to NR_TASKS (proc.h)
+
+define the task stack, e.g 'STACK_SIZE_TESTX' (proc.h)
+
+modify 'STACK_SIZE_TOTAL' (proc.h)
+
+add the prototype of the new task function (proto.h)
+
+the definition of the new task func is in main.c
+
+
+adding sys_call affects files:
+const.h
+proto.h
+global.c
+

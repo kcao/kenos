@@ -1,2 +1,8 @@
 
-refer Makefile
+refer Makefile for how to run this os using bochs.
+
+this project now generates a .img file for floppy.
+
+you can write the image to floppy and boot from a physical box, 
+or use virtual machine with the floppy image.
+

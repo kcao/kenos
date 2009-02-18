@@ -40,7 +40,10 @@ BINCLUDE	=	boot/include/addr.h boot/include/fat12hdr.h \
 BOOTFILE	=	boot/boot.bin boot/LOADER.BIN
 KERNELFILE	=	KERNEL.BIN
 OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o kernel/protect.o \
-			kernel/global.o \
+			kernel/global.o kernel/main.o kernel/clock.o \
+			kernel/syscall.o kernel/proc.o \
+			kernel/keyboard.o kernel/tty.o kernel/console.o \
+			kernel/printf.o kernel/vsprintf.o\
 			lib/klib.o lib/klibc.o lib/string.o
 			
 BOBJS		=	boot/boot.o boot/boot.elf boot/loader.o boot/loader.elf
@@ -86,6 +89,33 @@ kernel/protect.o: kernel/protect.c
 kernel/global.o: kernel/global.c
 	$(CC) $(CFLAGS) $< -o $@
 	
+kernel/main.o: kernel/main.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/clock.o: kernel/clock.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/syscall.o: kernel/syscall.S
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/proc.o: kernel/proc.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/keyboard.o: kernel/keyboard.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/tty.o: kernel/tty.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/console.o: kernel/console.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/printf.o: kernel/printf.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/vsprintf.o: kernel/vsprintf.c
+	$(CC) $(CFLAGS) $< -o $@
+
 $(KERNELFILE): $(OBJS)
 	$(LD) $(LDFLAGS_KER) $(OBJS) -o $@
 #	$(LD) -s -Ttext 0x30400 $(OBJS) -o $@

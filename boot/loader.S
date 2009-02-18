@@ -77,6 +77,7 @@ LABEL_START:
 	/* Display "Loading^^" */
 	mov	 $0,%dh
 	call	DispStrRealMode	/* Display string(index 0)*/
+	
 
 /* ==================================================================
 	Get the size of memory
@@ -409,7 +410,7 @@ LABEL_PM_START:
 	
 	call	InitKernel
 	
-	jmp	$SelectorFlatC,$KernelEntryPointPhyAddr
+	jmp	$SelectorFlatC, $KernelEntryPointPhyAddr
 	
 	/* Stop here, infinate loop. */
 /*	jmp	 .	*/

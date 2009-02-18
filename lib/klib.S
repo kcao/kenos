@@ -20,6 +20,7 @@
 
 /* klib.S */
 
+#include "sconst.h"
 /* disp_pos is defined in gobal.h as int */
 
 .section .text
@@ -28,6 +29,10 @@
 .globl	disp_color_str
 .globl	out_byte
 .globl	in_byte
+.globl	enable_irq
+.globl	disable_irq
+.globl	enable_int
+.globl	disable_int
 
 .type disp_str, @function
 /* void disp_str(char * info); */
@@ -134,4 +139,94 @@ in_byte:
 
 	ret
 
+
+.type disable_irq, @function
+/* void disable_irq(int irq); */
+/* Disable an interrupt request line by setting an 8259 bit.
+  Equivalent code for irq < 8:
+	out_byte(INT_CTLMASK, in_byte(INT_CTLMASK) | (1 << irq));
+  Returns true if the interrupt was not already disabled.
+*/
+disable_irq:
+	mov	4(%esp), %ecx	/* irq */
+	pushf
+	cli
+	mov	$1, %ah
+	rolb	%cl, %ah	/* %ah = (1 << (irq % 8)) */
+	cmpb	$8, %cl
+	jae	disable_8	/* disable irq >= 8 at the slave 8259 */
+disable_0:
+	inb	$INT_M_CTLMASK, %al
+	testb	%ah, %al
+	jnz	dis_already	/* already disabled? */
+
+	orb	%ah, %al
+	outb	%al, $INT_M_CTLMASK	/* set bit at master 8259 */
+	popf
+	movl	$1, %eax	/* the return value? disabled by this func */
+	
+	ret
+disable_8:
+	inb	$INT_M_CTLMASK, %al
+	testb	%ah, %al
+	jnz	dis_already
+	
+	orb	%ah, %al
+	outb	%al, $INT_S_CTLMASK	/* set bit at slave 8259 */
+	popf
+	movl	$1, %eax	/* the return value? */
+	
+	ret
+dis_already:
+	popf
+	xorl	%eax, %eax
+	ret
+
+
+.type enable_irq, @function
+/* void enable_irq(int irq); */
+/* Enable an interrupt request line by clearing an 8259 bit.
+  Equivalent code:
+	if(irq < 8){
+		out_byte(INT_M_CTLMASK, in_byte(INT_M_CTLMASK) & ~(1 << irq));
+	}
+	else{
+		out_byte(INT_S_CTLMASK, in_byte(INT_S_CTLMASK) & ~(1 << irq));
+	}
+*/
+enable_irq:
+	movl	4(%esp), %ecx	/* the value of irq */
+	pushf
+	cli
+	movb	$~1, %ah
+	rolb	%cl, %ah	/* %ah = ~(1 << (irq % 8)) */
+	cmp	$8, %cl
+	jae	enable_8	/* enable irq >= 8 at the slave 8259 */
+enable_0:
+	inb	$INT_M_CTLMASK, %al
+	andb	%ah, %al
+	outb	%al, $INT_M_CTLMASK	/* clear bit at master 8259 */
+	popf
+	
+	ret
+enable_8:
+	inb	$INT_S_CTLMASK, %al
+	andb	%ah, %al
+	outb	%al, $INT_S_CTLMASK	/* clear bit at slave 8259 */
+	popf
+	
+	ret
+
+
+.type disable_int, @function
+/* void disable_int(); */
+disable_int:
+	cli
+	ret
+
+.type enable_int, @function
+/* void enable_int(); */
+enable_int:
+	sti
+	ret
 
