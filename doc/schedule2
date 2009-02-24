@@ -1,0 +1,7 @@
+Linux uses two process-scheduling algorithms:
+  A time-sharing algorithm for fair preemptive scheduling
+   between multiple processes
+   
+  A real-time algorithm for tasks where absolute priorities
+   are more important than fairness
+

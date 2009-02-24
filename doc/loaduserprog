@@ -1,0 +1,18 @@
+Executing and Loading User Programs
+  Linux maintains a table of functions for loading
+   programs; it gives each function the opportunity to try
+   loading the given file when an exec system call is made.
+   
+  The registration of multiple loader routines allows Linux
+   to support both the ELF and a.out binary formats.
+   
+  Initially, binary-file pages are mapped into virtual
+   memory; only when a program tries to access a given
+   page will a page fault result in that page being loaded
+   into physical memory.
+   
+  An ELF-format binary file consists of a header followed
+   by several page-aligned sections; the ELF loader works
+   by reading the header and mapping the sections of the
+   file into separate regions of virtual memory.
+
