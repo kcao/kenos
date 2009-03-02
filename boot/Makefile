@@ -48,6 +48,10 @@ boot.img: boot.bin
 	dd if=boot.bin of=boot.img bs=512 count=1
 	dd if=/dev/zero of=boot.img skip=1 seek=1 bs=512 count=2879
 
+# run the os using bochs
+run: bochsrc.bxrc boot.img
+	bochs -f bochsrc.bxrc
+	
 # You must have the authority to do mount, or you must use "su root" 
 #	or "sudo" command to do "make copy"
 bcopy: boot.img LOADER.BIN
@@ -58,7 +62,7 @@ bcopy: boot.img LOADER.BIN
 	rm -rf tmp/;
 
 clean: 
-	rm -f *.o *.elf *.bin *.BIN
+	rm -f *.o *.elf *.bin *.BIN bochsout.txt
 
 dclean:
 	rm -f *.img

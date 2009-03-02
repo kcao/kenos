@@ -66,23 +66,31 @@ LABEL_START:
     xor     %dl,%dl       /* %dl=0: floppy driver 0 */
     int     $0x13         /* BIOS int 13h, ah=0: Reset driver 0 */
 
-    /* Find LOADER.BIN in root directory of driver 0 */
+    /* search LOADER.BIN in root directory of driver 0 */
     movw    $SecNoOfRootDir, (wSectorNo)
 
 /* read root directory sector to memory */
 LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
     cmpw    $0,(wRootDirSizeForLoop)    /* If searching in root dir */
-    jz      LABEL_NO_LOADERBIN          /* can find  LOADER.BIN ?   */
+    jz      LABEL_NO_LOADERBIN          /* can find LOADER.BIN ?   */
     decw    (wRootDirSizeForLoop)
-    mov     $BaseOfLoader,%ax
-    mov     %ax,%es                     /* %es <- BaseOfLoader*/
-    mov     $OffsetOfLoader,%bx         /* %bx <- OffsetOfLoader */
-    mov     (wSectorNo),%ax             /* %ax <- sector number in root */
+    
+    mov     $BaseOfLoader, %ax
+    mov     %ax, %es                    /* %es <- BaseOfLoader*/
+    mov     $OffsetOfLoader, %bx        /* %bx <- OffsetOfLoader */
+    mov     (wSectorNo), %ax            /* %ax <- sector number in root */
+    
     mov     $1,%cl
+    
+    /* Read %cl Sectors from %ax_th sector to %es:%bx  */
     call    ReadSector
-    mov     $LoaderFileName,%si         /* %ds:%si -> LOADER  BIN */
-    mov     $OffsetOfLoader,%di         /* BaseOfLoader << 4 + 100*/
-    cld
+    
+    mov     $LoaderFileName, %si        /* %ds:%si -> LOADER  BIN */
+    mov     $OffsetOfLoader, %di        /* BaseOfLoader << 4 + 100 */
+    
+    cld     /* cld reset direction flag -- si, di grow forward, 
+               std set the direction flag -- si, di grow backward */
+    
     mov     $0x10,%dx
 
 /* search for "LOADER  BIN", file names are saved in 12 bytes as in FAT12, 
@@ -92,7 +100,7 @@ LABEL_SEARCH_IN_ROOT_DIR_BEGIN:
    "LOADER  BIN"(4f4c 4441 5245 2020 4942 204e). 
 */
 LABEL_SEARCH_FOR_LOADERBIN:
-    cmp     $0,%dx                      /* Read control */
+    cmp     $0, %dx                 /* Read control */
     jz      LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR
     dec     %dx
     mov     $11,%cx
@@ -101,8 +109,10 @@ LABEL_CMP_FILENAME:
     cmp     $0,%cx
     jz      LABEL_FILENAME_FOUND    /* If 11 chars are all identical? */
     dec     %cx
-    lodsb                           /* %ds:(%si) -> %al*/
-    cmp     %es:(%di),%al
+    
+    lodsb   /* %ds:(%si) -> %al*/
+    
+    cmp     %es:(%di), %al          /* %es:%bx contains what has been read from disk */
     jz      LABEL_GO_ON
     jmp     LABEL_DIFFERENT         /* Different */
 
@@ -111,9 +121,9 @@ LABEL_GO_ON:
     jmp     LABEL_CMP_FILENAME      /* Go on loop */
 
 LABEL_DIFFERENT:
-    and     $0xffe0,%di             /* Go to head of this entry */
-    add     $0x20,%di
-    mov     $LoaderFileName,%si     /* Next entry */
+    and     $0xffe0, %di            /* Go to head of this entry */
+    add     $0x20, %di
+    mov     $LoaderFileName, %si    /* Next entry */
     jmp     LABEL_SEARCH_FOR_LOADERBIN
 
 LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR:
@@ -122,11 +132,11 @@ LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR:
 
 /* not found LOADER.BIN in root dir. */
 LABEL_NO_LOADERBIN:
-    mov     $2,%dh
+    mov     $2,%dh          /* the %dh (2nd) msg in the structure */
     call    DispStr         /* Display string(index 2) */
-    jmp        .            /* Infinite loop */
+    jmp     .               /* Infinite loop */
 
-/* got it. */
+/* got it, and start loading the value */
 LABEL_FILENAME_FOUND:
     mov     $RootDirSectors,%ax
     and     $0xffe0,%di             /* Start of current entry, 32 bytes per entry */
@@ -165,14 +175,15 @@ LABEL_GOON_LOADING_FILE:
     jmp     LABEL_GOON_LOADING_FILE
 
 LABEL_FILE_LOADED:
-    mov     $1,%dh        
+    mov     $1, %dh        /* the %dh (1st) msg in the structure */
     call    DispStr        /* Display string(index 1) */
 
 /*******************************************************************
    Jump to LOADER.BIN's start address in memory.
 */
-    jmp     $BaseOfLoader,$OffsetOfLoader
+    jmp     $BaseOfLoader, $OffsetOfLoader
 /*******************************************************************/
+
 
 /* ==================================================================
    variables
@@ -196,57 +207,68 @@ Message2:           .ascii    "No LOADER"        /* index 2 */
 */
 DispStr: 
     mov     $MessageLength, %ax
-    mul     %dh
+    mul     %dh                 /* the %dh (nth) msg in the structure */
     add     $BootMessage,%ax
-    mov     %ax,%bp               /* String address */
+    mov     %ax,%bp             /* es:bp -> the addr of the str */
     mov     %ds,%ax
-    mov     %ax,%es
-    mov     $MessageLength,%cx    /* String length */
-    mov     $0x1301,%ax           /* ah = 0x13, al = 0x01(W) */
-    mov     $0x07,%bx             /* PageNum 0(bh = 0), bw(bl= 0x07)*/
-    mov     $0,%dl                /* Start row and column */
-    int     $0x10                 /* BIOS INT 10h, display string */
+    mov     %ax,%es             /* es:bp -> the addr of the str */
+    mov     $MessageLength,%cx  /* String length */
+    mov     $0x1301,%ax         /* ah = 0x13, al = 0x01(W) */
+    mov     $0x07,%bx           /* PageNum 0(bh = 0), bw(bl= 0x07)*/
+    mov     $0,%dl              /* Start row and column */
+    int     $0x10               /* BIOS INT 10h, display string */
     ret
 
 /* ==================================================================
    Routine: ReadSector
-   Action: Read %cl Sectors from %ax sector(floppy) to %es:%bx(memory) 
+   Action: Read %cl Sectors from %ax sector(floppy) to %es:%bx (memory) 
      
-     Assume sector number is 'x', then:
+     Assume sector number is 'x' (stored in %ax in this case), then:
        x / (BPB_SecPerTrk) = y,
        x % (BPB_SecPerTrk) = z.
        
      The remainder 'z' PLUS 1 is the start sector number;
-     The quotient 'y' devide by BPB_NumHeads(RIGHT SHIFT 1 bit)is cylinder
+     z + 1 -> the start-sector number
+     
+     The quotient 'y' devide by BPB_NumHeads(RIGHT SHIFT 1 bit) is cylinder 
      number;
-     AND 'y' by 1 can get magnetic header.
+     y >> 1 -> cylinder number
+     y & 1 -> magnetic header number.
 */
 ReadSector:
     push    %ebp
-    mov     %esp,%ebp
-    sub     $2,%esp        /* Reserve space for saving %cl */
-    mov     %cl,-2(%ebp)
-    push    %bx            /* Save bx */
+    mov     %esp, %ebp
+    sub     $2, %esp        /* Reserve space for saving %cl */
+    mov     %cl, -2(%ebp)
+    push    %bx             /* Save bx */
     mov     (BPB_SecPerTrk), %bl    /* %bl: the devider */
-    div     %bl            /* 'y' in %al, 'z' in %ah */
-    inc     %ah            /* z++, got start sector */
-    mov     %ah,%cl        /* %cl <- start sector number */
-    mov     %al,%dh        /* %dh <- 'y' */
-    shr     $1,%al         /* 'y'/BPB_NumHeads */
-    mov     %al,%ch        /* %ch <- Cylinder number(y>>1) */
-    and     $1,%dh         /* %dh <- Magnetic header(y&1) */
-    pop     %bx            /* Restore %bx */
+    
+    div     %bl             /* 'y' in %al, 'z' in %ah */
+    
+    inc     %ah             /* z++, got start sector */
+    mov     %ah, %cl        /* %cl <- start sector number */
+    
+    mov     %al ,%dh        /* %dh <- 'y' */
+    shr     $1, %al         /* 'y'/BPB_NumHeads */
+    mov     %al, %ch        /* %ch <- Cylinder number(y>>1) */
+    
+    and     $1, %dh         /* %dh <- Magnetic header(y&1) */
+    pop     %bx             /* Restore %bx */
+    
     /* Now, we got cylinder number in %ch, start sector number in %cl, magnetic
        header in %dh. */
     mov     (BS_DrvNum), %dl
 GoOnReading:
-    mov     $2,%ah
-    mov     -2(%ebp),%al    /* Read %al sectors */
-    int     $0x13
+    mov     $2, %ah
+    mov     -2(%ebp), %al   /* Read %al sectors */
+    int     $0x13           /* since %ah == 2, int 0x13 means reading */
+    
     jc      GoOnReading     /* If CF set 1, mean read error, reread. */
-    add     $2,%esp
+    add     $2, %esp
     pop     %ebp
     ret
+    /* end of ReadSector */
+    
 
 /* ==================================================================
    Routine: GetFATEntry
@@ -256,37 +278,37 @@ GetFATEntry:
     push    %es
     push    %bx
     push    %ax
-    mov     $BaseOfLoader,%ax
-    sub     $0x0100,%ax
-    mov     %ax,%es           /* Left 4K bytes for FAT */
+    mov     $BaseOfLoader, %ax
+    sub     $0x0100, %ax
+    mov     %ax, %es          /* Left 4K bytes for FAT */
     pop     %ax
-    movb    $0,(bOdd)
-    mov     $3,%bx
+    movb    $0, (bOdd)
+    mov     $3, %bx
     mul     %bx               /* %dx:%ax = %ax*3 */
-    mov     $2,%bx
+    mov     $2, %bx
     div     %bx               /* %dx:%ax/2 */
-    cmp     $0,%dx            /* remainder %dx = 0 ? */
+    cmp     $0, %dx           /* remainder %dx = 0 ? */
     jz      LABEL_EVEN
-    movb    $1,(bOdd)
+    movb    $1, (bOdd)
 
 LABEL_EVEN:
-    xor     %dx,%dx           /* Now %ax is the offset of FATEntry in FAT */
-    mov     (BPB_BytsPerSec),%bx
+    xor     %dx, %dx           /* Now %ax is the offset of FATEntry in FAT */
+    mov     (BPB_BytsPerSec), %bx
     div     %bx               /* %dx:%ax/BPB_BytsPerSec */
     push    %dx
-    mov     $0,%bx
-    add     $SecNoOfFAT1,%ax  /* %ax <- FATEntry's sector */
-    mov     $2,%cl            /* Read 2 sectors once, because FATEntry */
+    mov     $0, %bx
+    add     $SecNoOfFAT1, %ax /* %ax <- FATEntry's sector */
+    mov     $2, %cl           /* Read 2 sectors once, because FATEntry */
     call    ReadSector        /* may be in 2 sectors. */
     pop     %dx
-    add     %dx,%bx
-    mov     %es:(%bx),%ax
+    add     %dx, %bx
+    mov     %es:(%bx), %ax
     cmpb    $1,(bOdd)
     jnz     LABEL_EVEN_2
-    shr     $4,%ax
+    shr     $4, %ax
 
 LABEL_EVEN_2:
-    and     $0x0fff,%ax
+    and     $0x0fff, %ax
 
 LABEL_GET_FAT_ENTRY_OK:
     pop     %bx
