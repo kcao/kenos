@@ -113,7 +113,7 @@ void TestA()
 //	int i = 0;
 	while(1){
 //		disp_str("A.");
-		printf("<Ticks: %x>", get_ticks());
+//		printf("<Ticks: %x>", get_ticks());
 		milli_delay(100);
 	}
 }
@@ -126,7 +126,7 @@ void TestB()
 	int i = 0;
 	while(1){
 //		disp_str("B.");
-		printf("B");
+//		printf("B");
 		milli_delay(100);
 	}
 }
@@ -140,7 +140,7 @@ void TestC()
 	int i = 0;
 	while(1){
 //		disp_str("C.");
-		printf("C");
+//		printf("C");
 		milli_delay(100);
 	}
 }
