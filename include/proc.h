@@ -68,3 +68,5 @@ typedef struct s_task {
 				STACK_SIZE_TESTB + \
 				STACK_SIZE_TESTC)
 
+EXTERN	void		(*schedule)();
+

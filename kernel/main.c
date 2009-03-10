@@ -32,6 +32,7 @@ PUBLIC int kenos_main()
 	t_8		rpl;
 	int		eflags;
 	
+	// init the proc_table
 	for(i = 0; i< NR_TASKS + NR_PROCS; i++){
 		if (i < NR_TASKS) {	/* tasks */
 			p_task		= task_table + i;
@@ -90,13 +91,13 @@ PUBLIC int kenos_main()
 	proc_table[3].ticks = proc_table[3].priority =  5;
 	
 	proc_table[1].nr_tty = 0;
-	proc_table[2].nr_tty = 1;
+	proc_table[2].nr_tty = 0;
 	proc_table[3].nr_tty = 1;
 
 	k_reenter = 0;
 	ticks = 0;
 	
-	p_proc_ready	= proc_table;
+	p_proc_ready = proc_table;
 
 	init_clock();
 
@@ -111,9 +112,11 @@ PUBLIC int kenos_main()
 void TestA()
 {
 //	int i = 0;
+	sw_sched();
 	while(1){
 //		disp_str("A.");
 //		printf("<Ticks: %x>", get_ticks());
+//		sw_sched();
 		milli_delay(100);
 	}
 }

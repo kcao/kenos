@@ -18,50 +18,37 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* syscall.S */
-
-#include "sconst.h"
-
-.set INT_VECTOR_SYS_CALL, 0x90
-.set _NR_get_ticks,	0
-.set _NR_write,		1
-.set _NR_sw_sched,	2
-/* the same to the definition of sys_call_table in global.c */
-
-
-.code32
+/* 
+ * sfile.S 
+ * search files 
+ */
 
 .section .text
 
-.globl get_ticks
-.globl write
-.globl sw_sched
+.globl	smodf
 
-/* caution：%dx has been changed by save(), 
-  so we cannot use %edx to pass para */
 
-/* get_ticks */
-.type get_ticks, @function
-get_ticks:
-	mov	$_NR_get_ticks, %eax
-	int	$INT_VECTOR_SYS_CALL
+/* void smodf(); 
+ * search module file */
+.type smodf, @function
+smodf:
+	push	%ebp
+	mov	%esp, %ebp
+	
+	
+	/* Reset floppy */
+	xor	 %ah,%ah
+	xor	 %dl,%dl       /* %dl=0: floppy driver 0 */
+//	int	 $0x13         /* BIOS int 13h, ah=0: Reset driver 0 */
+	
+	
+	mov	%ebp, %esp
+	pop	%ebp
+
 	ret
+	
+/* end of smod() */
 
 
-/* write */
-.type write, @function
-write:
-	mov	$_NR_write, %eax
-	mov	4(%esp), %ebx
-	mov	8(%esp), %ecx
-	int	$INT_VECTOR_SYS_CALL
-	ret
 
-
-/* switch scheduler */
-.type sw_sched, @function
-sw_sched:
-	mov	$_NR_sw_sched, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
 

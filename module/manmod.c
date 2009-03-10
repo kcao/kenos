@@ -18,50 +18,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* syscall.S */
-
-#include "sconst.h"
-
-.set INT_VECTOR_SYS_CALL, 0x90
-.set _NR_get_ticks,	0
-.set _NR_write,		1
-.set _NR_sw_sched,	2
-/* the same to the definition of sys_call_table in global.c */
-
-
-.code32
-
-.section .text
-
-.globl get_ticks
-.globl write
-.globl sw_sched
-
-/* caution：%dx has been changed by save(), 
-  so we cannot use %edx to pass para */
-
-/* get_ticks */
-.type get_ticks, @function
-get_ticks:
-	mov	$_NR_get_ticks, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
+#include "type.h"
+#include "const.h"
+#include "protect.h"
+#include "string.h"
+#include "proc.h"
+#include "tty.h"
+#include "console.h"
+#include "global.h"
+#include "proto.h"
 
 
-/* write */
-.type write, @function
-write:
-	mov	$_NR_write, %eax
-	mov	4(%esp), %ebx
-	mov	8(%esp), %ecx
-	int	$INT_VECTOR_SYS_CALL
-	ret
+PUBLIC int manmod()
+{
+	smodf();
+	
+	disp_str("xxmod");
+	
+	return 0;
+}
 
 
-/* switch scheduler */
-.type sw_sched, @function
-sw_sched:
-	mov	$_NR_sw_sched, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
+
+
 

@@ -22,7 +22,7 @@ CC		=	gcc
 LD		=	ld
 OBJCOPY		=	objcopy
 
-BFLAGS		=	-I boot/include -c
+BFLAGS		=	-I boot/include -I include/fs -c
 CFLAGS		=	-I include -c -fno-builtin -fno-stack-protector
 TRIM_FLAGS	=	-R .pdr -R .comment -R .note -S -O binary
 
@@ -34,17 +34,24 @@ LDFLAGS_BOOT	=	-s -T $(LDFILE_BOOT)
 LDFLAGS_LDR	=	-s -T $(LDFILE_LDR)
 LDFLAGS_KER	=	-s -e c -T $(LDFILE_KER)
 
-BINCLUDE	=	boot/include/addr.h boot/include/fat12hdr.h \
+BINCLUDE	=	boot/include/addr.h include/fs/fat12hdr.h \
 			boot/include/lib.h boot/include/pm.h
 
 BOOTFILE	=	boot/boot.bin boot/LOADER.BIN
 KERNELFILE	=	KERNEL.BIN
-OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o kernel/protect.o \
-			kernel/global.o kernel/main.o kernel/clock.o \
+OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o \
+			kernel/protect.o \
+			kernel/global.o kernel/main.o \
+			kernel/clock.o \
 			kernel/syscall.o kernel/proc.o \
-			kernel/keyboard.o kernel/tty.o kernel/console.o \
+			kernel/keyboard.o \
+			kernel/tty.o kernel/console.o \
 			kernel/printf.o kernel/vsprintf.o\
-			lib/klib.o lib/klibc.o lib/string.o
+			kernel/xsched.o \
+			module/manmod.o \
+			fs/sfile.o \
+			lib/klib.o lib/klibc.o lib/string.o 
+			
 			
 BOBJS		=	boot/boot.o boot/boot.elf boot/loader.o boot/loader.elf
 
@@ -55,12 +62,12 @@ all: boot.img $(BOOTFILE) $(KERNELFILE)
 #
 boot/boot.bin: boot/boot.S $(BINCLUDE)
 	$(CC) $(BFLAGS) $< -o boot/boot.o
-	$(LD) boot/boot.o -o boot/boot.elf $(LDFLAGS_BOOT)
+	$(LD) $(LDFLAGS_BOOT) boot/boot.o -o boot/boot.elf
 	$(OBJCOPY) $(TRIM_FLAGS) boot/boot.elf $@
 
 boot/LOADER.BIN: boot/loader.S $(BINCLUDE)
 	$(CC) $(BFLAGS) $< -o boot/loader.o
-	$(LD) boot/loader.o -o boot/loader.elf $(LDFLAGS_LDR)
+	$(LD) $(LDFLAGS_LDR) boot/loader.o -o boot/loader.elf
 	$(OBJCOPY) $(TRIM_FLAGS) boot/loader.elf $@
 
 #
@@ -116,9 +123,19 @@ kernel/printf.o: kernel/printf.c
 kernel/vsprintf.o: kernel/vsprintf.c
 	$(CC) $(CFLAGS) $< -o $@
 
+kernel/xsched.o: kernel/xsched.c
+	$(CC) $(CFLAGS) $< -o $@
+
+module/manmod.o: module/manmod.c
+	$(CC) $(CFLAGS) $< -o $@
+
+fs/sfile.o: fs/sfile.S
+	$(CC) $(CFLAGS) $< -o $@
+
 $(KERNELFILE): $(OBJS)
 	$(LD) $(LDFLAGS_KER) $(OBJS) -o $@
 #	$(LD) -s -Ttext 0x30400 $(OBJS) -o $@
+
 
 boot.img: boot/boot.bin
 	dd if=boot/boot.bin of=boot.img bs=512 count=1

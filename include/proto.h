@@ -41,7 +41,13 @@ PUBLIC void clock_handler(int irq);
 PUBLIC void milli_delay(int milli_sec);
 
 /* proc.c */
-PUBLIC void schedule();
+PUBLIC void sched0();
+
+/* manmod.c */
+PUBLIC	int manmod(); 
+
+/* sfile.S */
+PUBLIC void smodf();
 
 /* keyboard.c */
 PUBLIC void keyboard_handler(int irq);
@@ -67,27 +73,30 @@ PUBLIC	int	vsprintf(char *buf, const char *fmt, va_list args);
 
 /* protoytpes related to system calls */
 /*------------*/
-/* system */
+/*   system   */
 /*------------*/
 
 /* proc.c */
 PUBLIC	int	sys_get_ticks	();
 PUBLIC	int	sys_write	(char* buf, int len, PROCESS* p_proc);
 /* add more sys_call here */
-PUBLIC	int	sys_get_author	(); 
 
+/* xsched.c */
+PUBLIC	int	sys_sw_sched	(); 
 
 /* syscall.S */
 PUBLIC	void	sys_call();	/* t_pf_int_handler */
 
 
 /*------------*/
-/* user */
+/*    user    */
 /*------------*/
 
 /* syscall.S */
 PUBLIC	int	get_ticks();
 PUBLIC	void	write(char* buf, int len);
+PUBLIC	int	sw_sched();
+/* add more sys_call here */
 
 
 
