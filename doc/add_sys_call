@@ -1,0 +1,14 @@
+/* add sys_call NR here */
+include/const.h:#define	NR_SYS_CALL	xx	
+
+/* add more sys_call here: prototype */
+include/proto.h:
+
+/* add more sys_call to the sys_call_table */
+kernel/global.c:
+
+/* sys_call name */
+kernel/syscall.S
+
+/*  */	
+func that implements the call

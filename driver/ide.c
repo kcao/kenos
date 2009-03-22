@@ -18,58 +18,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* syscall.S */
+#include "type.h"
+#include "const.h"
+#include "protect.h"
+#include "string.h"
+#include "proc.h"
+#include "tty.h"
+#include "console.h"
+#include "global.h"
+#include "proto.h"
 
-#include "sconst.h"
+PUBLIC void init_ide()
+{
+/* ignore secondary ide channel */
 
-.set INT_VECTOR_SYS_CALL, 0x90
-.set _NR_get_ticks,	0
-.set _NR_write,		1
-.set _NR_init_hd,	2
-.set _NR_sw_sched,	3
-/* the same to the definition of sys_call_table in global.c */
+	/* initialize 8253 PIT */
+//	out_byte(TIMER_MODE, RATE_GENERATOR);
+//	out_byte(TIMER0, (t_8) (TIMER_FREQ/HZ) );
+//	out_byte(TIMER0, (t_8) ((TIMER_FREQ/HZ) >> 8));
 
+//	put_irq_handler(xx_IRQ, xx_handler);
+//	enable_irq(xx_IRQ);	/* enable the clock interrupt of 8259A */
+}
 
-.code32
-
-.section .text
-
-.globl get_ticks
-.globl write
-.globl init_hd
-.globl sw_sched
-
-/* caution：%dx has been changed by save(), 
-  so we cannot use %edx to pass para */
-
-/* get_ticks */
-.type get_ticks, @function
-get_ticks:
-	mov	$_NR_get_ticks, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-
-/* write */
-.type write, @function
-write:
-	mov	$_NR_write, %eax
-	mov	4(%esp), %ebx
-	mov	8(%esp), %ecx
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-/* init harddisk */
-.type init_hd, @function
-init_hd:
-	mov	$_NR_init_hd, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-/* switch scheduler */
-.type sw_sched, @function
-sw_sched:
-	mov	$_NR_sw_sched, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
 

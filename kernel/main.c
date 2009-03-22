@@ -100,6 +100,8 @@ PUBLIC int kenos_main()
 	p_proc_ready = proc_table;
 
 	init_clock();
+	
+	
 
 	restart();
 
@@ -112,7 +114,8 @@ PUBLIC int kenos_main()
 void TestA()
 {
 //	int i = 0;
-	sw_sched();
+//	sw_sched();
+	printf("<xxxxxxhd: %x>", init_hd());
 	while(1){
 //		disp_str("A.");
 //		printf("<Ticks: %x>", get_ticks());

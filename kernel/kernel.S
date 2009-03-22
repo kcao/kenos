@@ -171,6 +171,7 @@ csinit:
 /* ----- */
 .align 16
 hwint00:		/* Interrupt routine for irq 0 (the clock). */
+			/* system timer */
 	hwint_master	0
 
 .align 16
@@ -237,10 +238,12 @@ hwint13:		// Interrupt routine for irq 13 (FPU exception)
 
 .align 16
 hwint14:		// Interrupt routine for irq 14 (AT winchester)
+			/* primary ide */
 	hwint_slave	14
 
 .align 16
 hwint15:		// Interrupt routine for irq 15
+			/* secondary ide */
 	hwint_slave	15
 
 
@@ -330,7 +333,7 @@ save:
 
 	mov	%esp, %esi	/* %eax = the addr of proc table */
 	
-	incl	(k_reenter)
+	incl	(k_reenter)		/* k_reenter++ */
 	cmpl	$0, (k_reenter)		/* if (k_reenter == 0) */
 	jne	.sv1
 

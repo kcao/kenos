@@ -48,6 +48,7 @@ OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o \
 			kernel/tty.o kernel/console.o \
 			kernel/printf.o kernel/vsprintf.o\
 			kernel/xsched.o \
+			driver/ide.o driver/hd.o \
 			module/manmod.o \
 			fs/sfile.o \
 			lib/klib.o lib/klibc.o lib/string.o 
@@ -80,6 +81,14 @@ lib/klib.o: lib/klib.S
 lib/klibc.o:lib/klib.c
 	$(CC) $(CFLAGS) $< -o $@
 
+#
+driver/ide.o: driver/ide.c
+	$(CC) $(CFLAGS) $< -o $@
+
+driver/hd.o: driver/hd.c
+	$(CC) $(CFLAGS) $< -o $@
+
+#
 kernel/kernel.o: kernel/kernel.S
 #	nasm -f elf -o kernel/kernel.o kernel/kernel.asm
 	$(CC) $(CFLAGS) $< -o $@
@@ -147,17 +156,18 @@ run: bochsrc.bxrc boot.img
 
 # You must have the authority to do mount, or you must use "su root" 
 #	or "sudo" command to do "make copy"
-copy: boot.img boot/LOADER.BIN KERNEL.BIN
+cp: boot.img boot/LOADER.BIN KERNEL.BIN
 	mkdir -p tmp;\
 	mount -o loop boot.img tmp/ -o fat=12;\
 	cp boot/LOADER.BIN tmp/;\
+	cp boot/boot.bin tmp/;\
 	cp KERNEL.BIN tmp/;\
 	umount tmp;\
 	rm -rf tmp;
 
-clean: 
+cl: 
 	rm -f $(OBJS) $(BOBJS)
 
-dclean:
+dcl:
 	rm -f $(BOBJS) $(OBJS) $(BOOTFILE) $(KERNELFILE) boot.img bochsout.txt
 

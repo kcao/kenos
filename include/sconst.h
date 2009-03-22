@@ -53,7 +53,7 @@
 
 .set INT_M_CTL,		0x20	// I/O port for interrupt controller         <Master>
 .set INT_M_CTLMASK,	0x21	// setting bits in this port disables ints   <Master>
-.set INT_S_CTL,		0xA0	// I/O port for second interrupt controller  <Slave>
+.set INT_S_CTL,		0xA0	// I/O port for secondary interrupt controller  <Slave>
 .set INT_S_CTLMASK,	0xA1	// setting bits in this port disables ints   <Slave>
 
 .set EOI,	0x20	/* entry of interrupt */

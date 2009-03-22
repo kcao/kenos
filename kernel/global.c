@@ -56,6 +56,7 @@ PUBLIC	TASK	user_proc_table[NR_PROCS] = {
 PUBLIC	t_sys_call sys_call_table[NR_SYS_CALL] = {
 					sys_get_ticks,
 					sys_write,
+					sys_init_hd,
 					/* add more sys_call here */
 					sys_sw_sched
 					/* add more sys_call here */

@@ -97,9 +97,9 @@
 #define	XT_WINI_IRQ	5	/* xt winchester */
 #define	FLOPPY_IRQ	6	/* floppy disk */
 #define	PRINTER_IRQ	7
-#define	AT_WINI_IRQ	14	/* at winchester */
+#define	AT_WINI_IRQ	14	/* at winchester, primary ide channel */
 
 /* system call */
-#define	NR_SYS_CALL	3	/* add more sys_call here */
+#define	NR_SYS_CALL	4	/* add more sys_call here */
 
 #endif /* _TINIX_CONST_H_ */

@@ -18,58 +18,66 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* syscall.S */
+#include "const.h"
+#include "asm/io.h"
+#include "drv/hdreg.h"
 
-#include "sconst.h"
+#define MAX_HD	2
 
-.set INT_VECTOR_SYS_CALL, 0x90
-.set _NR_get_ticks,	0
-.set _NR_write,		1
-.set _NR_init_hd,	2
-.set _NR_sw_sched,	3
-/* the same to the definition of sys_call_table in global.c */
+#define CMOS_READ(addr) ({ \
+	outb_p(0x80|addr,0x70); \
+	inb_p(0x71); \
+})
+
+/*
+ *  This struct defines the HD's and their types.
+ */
+struct hd_info_struct {
+	int head,sect,cyl,wpcom,lzone,ctl;
+};
+
+#ifdef HD_TYPE
+	struct hd_info_struct hd_info[] = { HD_TYPE };
+	#define NR_HD ((sizeof (hd_info))/(sizeof (struct hd_info)))
+#else
+	struct hd_info_struct hd_info[] = { {0,0,0,0,0,0},{0,0,0,0,0,0} };
+	static int NR_HD = 0;
+#endif
+
+static struct hd_struct {
+	long start_sect;
+	long nr_sects;
+	
+} hd[5*MAX_HD]={{0,0},};
+
+#define port_read(port,buf,nr) \
+	__asm__("cld;rep;insw"::"d" (port),"D" (buf),"c" (nr):"cx","di")
+
+#define port_write(port,buf,nr) \
+	__asm__("cld;rep;outsw"::"d" (port),"S" (buf),"c" (nr):"cx","si")
 
 
-.code32
+/* actually this func should be called only once */
+PUBLIC int sys_init_hd()
+{
+	int i,drive;
+	unsigned char cmos_disks;
+	struct partition *p;
 
-.section .text
+	int hd_nr = 0;
+	
+	if ((cmos_disks = CMOS_READ(0x12)) & 0xf0) {
+		if (cmos_disks & 0x0f)
+			hd_nr = 2;
+		else
+			hd_nr = 1;
+	}
+	else {
+		hd_nr = 0;
+	}
+	
+	printf("xxxxxxxxxxx");
+	return hd_nr;
+}
 
-.globl get_ticks
-.globl write
-.globl init_hd
-.globl sw_sched
-
-/* caution：%dx has been changed by save(), 
-  so we cannot use %edx to pass para */
-
-/* get_ticks */
-.type get_ticks, @function
-get_ticks:
-	mov	$_NR_get_ticks, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-
-/* write */
-.type write, @function
-write:
-	mov	$_NR_write, %eax
-	mov	4(%esp), %ebx
-	mov	8(%esp), %ecx
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-/* init harddisk */
-.type init_hd, @function
-init_hd:
-	mov	$_NR_init_hd, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-/* switch scheduler */
-.type sw_sched, @function
-sw_sched:
-	mov	$_NR_sw_sched, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
 
