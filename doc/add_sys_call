@@ -9,6 +9,8 @@ kernel/global.c:
 
 /* sys_call name */
 kernel/syscall.S
+.globl xxx
+.type xxx @function
 
 /*  */	
 func that implements the call

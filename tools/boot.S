@@ -27,7 +27,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
+/* use this boot.bin to read metadata of hd */
 
 /* real mode boot and loader */
 .code16
@@ -62,6 +62,8 @@ LABEL_START:
     call    DispStr       /* Display string(index 0)*/
     
 /********************************************************************/
+	xorl	%eax, %eax
+	xorl	%eds, %eds
 
 	movw	$0x0, %ax
 	movw	%ax, %ds
@@ -69,6 +71,7 @@ LABEL_START:
 	xorl	%eax, %eax
 	xorl	%ebx, %ebx
 	movl	$0, %ebx
+	
 //	mov	$0x41, %eax
 	movl	$0x0104, %eax
 	
@@ -83,7 +86,6 @@ LABEL_START:
 	xorl	%edx, %edx
 	xorl	%ecx, %ecx
 	movw	$0x10, %cx
-	
 	
 PHDINF:	lodsb		/* load the vaule to %al */
 
@@ -109,7 +111,6 @@ PHDINF:	lodsb		/* load the vaule to %al */
 	
 	xorl	%eax, %eax
 	xorl	%edx, %edx
-	
 	loop	PHDINF
 	
 	pop     %ebx
@@ -119,10 +120,6 @@ PHDINF:	lodsb		/* load the vaule to %al */
 	jmp	.
  
 /********************************************************************/
-
-    jmp .
-    
-    
 /* ==================================================================
    variables
 */
@@ -133,9 +130,8 @@ bOdd:                   .byte   0       /* is odd? */
 /* ==================================================================
    String table
 */
-LoaderFileName:     .asciz  "LOADER  BIN"        /* File name of loader*/
-.set    	MessageLength, 9
-BootMessage:        .ascii    "HDdrvinf_"        /* index 0 */
+.set		MessageLength,	9
+BootMessage:	.ascii		"HDdrvinf_"	/* index 0 */
 
 /* ==================================================================
    Routine: DispStr

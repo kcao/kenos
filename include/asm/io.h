@@ -12,6 +12,8 @@ __asm__ volatile ("inb %%dx,%%al":"=a" (_v):"d" (port)); \
 _v; \
 })
 
+
+/* 'outb' and 'inb' with pause */
 #define outb_p(value,port) \
 __asm__ ("outb %%al,%%dx\n" \
                 "\tjmp 1f\n" \

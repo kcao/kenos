@@ -46,7 +46,8 @@ OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o \
 			kernel/syscall.o kernel/proc.o \
 			kernel/keyboard.o \
 			kernel/tty.o kernel/console.o \
-			kernel/printf.o kernel/vsprintf.o\
+			kernel/printf.o kernel/vsprintf.o \
+			kernel/panic.o \
 			kernel/xsched.o \
 			driver/ide.o driver/hd.o \
 			module/manmod.o \
@@ -130,6 +131,9 @@ kernel/printf.o: kernel/printf.c
 	$(CC) $(CFLAGS) $< -o $@
 
 kernel/vsprintf.o: kernel/vsprintf.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/panic.o: kernel/panic.c
 	$(CC) $(CFLAGS) $< -o $@
 
 kernel/xsched.o: kernel/xsched.c

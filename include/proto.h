@@ -63,7 +63,10 @@ PUBLIC void init_clock();
 /* ide.c */
 
 /* driver/hd.c */
-PUBLIC	int sys_init_hd();
+PUBLIC void init_hd();
+PUBLIC void hd_intr(int irq);
+PUBLIC	int sys_get_hd_info();
+PUBLIC void sys_hd_xxx();
 
 
 /* proc.c */
@@ -96,6 +99,9 @@ PUBLIC	int	printf(const char *fmt, ...);
 /* vsprintf.c */
 PUBLIC	int	vsprintf(char *buf, const char *fmt, va_list args);
 
+/* panic.c */
+PUBLIC void	panic(char *msg);
+
 
 /* protoytpes related to system calls */
 /*------------*/
@@ -121,8 +127,9 @@ PUBLIC	void	sys_call();	/* t_pf_int_handler */
 /* syscall.S */
 PUBLIC	int	get_ticks();
 PUBLIC	void	write(char* buf, int len);
-PUBLIC	int	init_hd();
+PUBLIC	int	get_hd_info();
 PUBLIC	int	sw_sched();
+PUBLIC	int	hd_xxx();
 /* add more sys_call here */
 
 

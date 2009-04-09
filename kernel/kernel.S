@@ -205,10 +205,40 @@ hwint07:		// Interrupt routine for irq 7 (printer)
 
 /* ------ hwint_slave ------ */
 .macro hwint_slave Irq
-	push	\Irq
-	call	spurious_irq
-	add	$4, %esp
-	hlt
+//	push	\Irq
+//	call	spurious_irq
+//	add	$4, %esp
+//	hlt
+	call	save
+
+	/* do not allow irq \Irq */
+	inb	$INT_S_CTLMASK, %al
+	or	$(1 << (\Irq - 8 )), %al
+	outb	%al, $INT_S_CTLMASK
+	
+	/* reenable slave 8259, set EOI */
+	movb	$EOI, %al
+	outb	%al, $INT_S_CTL
+	
+	/* int will be turned off automatically, when cpu is responsing
+	  the int. 'sti' makes new int allowed */
+	sti
+	
+	/* the interrupt handler */
+	push	$(\Irq)
+	leal	irq_table, %eax
+	call	*(4 * (\Irq))(%eax)
+	pop	%ecx
+
+	cli
+	
+	/* allow irq 0 again */
+	inb	$INT_S_CTLMASK, %al
+	andb	$~(1 << (\Irq - 8 )), %al
+	outb	%al, $INT_S_CTLMASK
+	
+	ret	/* jmp to (call) restart_reenter when reenter, 
+		  otherwise, jmp to (call) restart */
 .endm
 
 /* ----- */

@@ -86,9 +86,9 @@ PUBLIC int kenos_main()
 		selector_ldt += 1 << 3;
 	}
 	proc_table[0].ticks = proc_table[0].priority = 15;
-	proc_table[1].ticks = proc_table[1].priority =  5;
-	proc_table[2].ticks = proc_table[2].priority =  5;
-	proc_table[3].ticks = proc_table[3].priority =  5;
+	proc_table[1].ticks = proc_table[1].priority = 5;
+	proc_table[2].ticks = proc_table[2].priority = 5;
+	proc_table[3].ticks = proc_table[3].priority = 5;
 	
 	proc_table[1].nr_tty = 0;
 	proc_table[2].nr_tty = 0;
@@ -100,9 +100,8 @@ PUBLIC int kenos_main()
 	p_proc_ready = proc_table;
 
 	init_clock();
+	init_hd();
 	
-	
-
 	restart();
 
 	while(1){}
@@ -115,7 +114,9 @@ void TestA()
 {
 //	int i = 0;
 //	sw_sched();
-	printf("<xxxxxxhd: %x>", init_hd());
+//	hd_intr();
+	printf("<xxxxxxhd: %x>\n", get_hd_info());
+	hd_xxx();
 	while(1){
 //		disp_str("A.");
 //		printf("<Ticks: %x>", get_ticks());

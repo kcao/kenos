@@ -19,7 +19,7 @@
 #define HD_PRECOMP HD_ERROR     /* same io address, read=error, write=precomp */
 #define HD_COMMAND HD_STATUS    /* same io address, read=status, write=cmd */
 
-#define HD_CMD          0x3f6
+#define HD_CMD          0x3f6	/* port of control register */
 
 /* Bits of HD_STATUS */
 #define ERR_STAT        0x01

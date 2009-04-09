@@ -100,6 +100,6 @@
 #define	AT_WINI_IRQ	14	/* at winchester, primary ide channel */
 
 /* system call */
-#define	NR_SYS_CALL	4	/* add more sys_call here */
+#define	NR_SYS_CALL	5	/* add more sys_call here */
 
 #endif /* _TINIX_CONST_H_ */
