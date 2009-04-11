@@ -18,27 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "type.h"
-#include "const.h"
-#include "protect.h"
-#include "string.h"
-#include "proc.h"
-#include "tty.h"
-#include "console.h"
-#include "global.h"
-#include "proto.h"
+#ifndef	_KENOS_UTILS_H_
+#define	_KENOS_UTILS_H_
 
-PUBLIC void init_ide()
-{
-/* ignore secondary ide channel */
+#include "klibc.h"
+#include "klibs.h"
 
-	/* initialize 8253 PIT */
-//	out_byte(TIMER_MODE, RATE_GENERATOR);
-//	out_byte(TIMER0, (t_8) (TIMER_FREQ/HZ) );
-//	out_byte(TIMER0, (t_8) ((TIMER_FREQ/HZ) >> 8));
-
-//	put_irq_handler(xx_IRQ, xx_handler);
-//	enable_irq(xx_IRQ);	/* enable the clock interrupt of 8259A */
-}
-
+#endif /* _KENOS_UTILS_H_ */
 

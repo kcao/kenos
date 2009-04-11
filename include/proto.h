@@ -24,6 +24,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#ifndef _KENOS_PROTO_H_
+#define _KENOS_PROTO_H_
+
 /* klib.S */
 PUBLIC void out_byte(t_port port, t_8 value);
 PUBLIC t_8  in_byte(t_port port);
@@ -133,4 +136,4 @@ PUBLIC	int	hd_xxx();
 /* add more sys_call here */
 
 
-
+#endif /* _KENOS_PROTO_H_ */

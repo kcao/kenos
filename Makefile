@@ -49,10 +49,11 @@ OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o \
 			kernel/printf.o kernel/vsprintf.o \
 			kernel/panic.o \
 			kernel/xsched.o \
-			driver/ide.o driver/hd.o \
+			drv/ide.o drv/hd.o \
 			module/manmod.o \
 			fs/sfile.o \
-			lib/klib.o lib/klibc.o lib/string.o 
+			lib/klib.o lib/klibc.o lib/string.o \
+			lib/delay.o
 			
 			
 BOBJS		=	boot/boot.o boot/boot.elf boot/loader.o boot/loader.elf
@@ -82,11 +83,14 @@ lib/klib.o: lib/klib.S
 lib/klibc.o:lib/klib.c
 	$(CC) $(CFLAGS) $< -o $@
 
-#
-driver/ide.o: driver/ide.c
+lib/delay.o: lib/delay.c
 	$(CC) $(CFLAGS) $< -o $@
 
-driver/hd.o: driver/hd.c
+#
+drv/ide.o: drv/ide.c
+	$(CC) $(CFLAGS) $< -o $@
+
+drv/hd.o: drv/hd.c
 	$(CC) $(CFLAGS) $< -o $@
 
 #

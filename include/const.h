@@ -1,9 +1,27 @@
-
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                             const.h
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                     Forrest Yu, 2005
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/****************************************************************************
+ *   Modified by Cao, Chen - 2009                                          *
+ *   ken.ccao@gmail.com                                                    *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 3 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
 
 #ifndef	_TINIX_CONST_H_
 #define	_TINIX_CONST_H_
@@ -52,10 +70,14 @@
 #define	NR_CONSOLES	3	/* consoles */
 
 /* 8259A interrupt controller ports. */
-#define	INT_M_CTL	0x20	/* I/O port for interrupt controller       <Master> */
-#define	INT_M_CTLMASK	0x21	/* setting bits in this port disables ints <Master> */
-#define	INT_S_CTL	0xA0	/* I/O port for second interrupt controller<Slave>  */
-#define	INT_S_CTLMASK	0xA1	/* setting bits in this port disables ints <Slave>  */
+/* I/O port for interrupt controller       <Master> */
+#define	INT_M_CTL	0x20
+/* setting bits in this port disables ints <Master> */
+#define	INT_M_CTLMASK	0x21
+/* I/O port for second interrupt controller<Slave>  */
+#define	INT_S_CTL	0xA0
+/* setting bits in this port disables ints <Slave>  */
+#define	INT_S_CTLMASK	0xA1
 
 /* 8253/8254 PIT (Programmable Interval Timer) */
 #define TIMER0          0x40	/* I/O port for timer channel 0 */
@@ -97,7 +119,14 @@
 #define	XT_WINI_IRQ	5	/* xt winchester */
 #define	FLOPPY_IRQ	6	/* floppy disk */
 #define	PRINTER_IRQ	7
-#define	AT_WINI_IRQ	14	/* at winchester, primary ide channel */
+#define RT_CLOCK_IRQ	8
+#define MASTER_PIC	9
+#define AVAIL_1_IRQ	10
+#define AVAIL_2_IRQ	11
+#define PS2_MOUSE_IRQ	12
+#define COPROCESSOR_IRQ	13
+#define	PRI_IDE_IRQ	14	/* at winchester, primary ide channel */
+#define SEC_IDE_IRQ	15
 
 /* system call */
 #define	NR_SYS_CALL	5	/* add more sys_call here */

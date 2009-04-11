@@ -26,6 +26,9 @@
  ***************************************************************************/
 
 
+#ifndef	_KENOS_SCONST_H_
+#define	_KENOS_SCONST_H_
+
 .set P_STACKBASE,	0
 .set GSREG,		P_STACKBASE
 .set FSREG,		(GSREG		+ 4)
@@ -62,4 +65,7 @@
 .set SELECTOR_FLAT_C,		0x08		//
 .set SELECTOR_TSS,		0x20		//
 .set SELECTOR_KERNEL_CS,	SELECTOR_FLAT_C
+
+
+#endif /* _KENOS_SCONST_H_ */
 

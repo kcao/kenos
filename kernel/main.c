@@ -21,6 +21,10 @@
  *======================================================================*/
 PUBLIC int kenos_main()
 {
+	disp_str("----- init ata device -----\n");
+	init_ide_dev();
+	disp_str("----- end of ata init -----\n");
+	
 	disp_str("-----\"kenos_main\" begins-----\n");
 
 	TASK*		p_task;
@@ -98,9 +102,8 @@ PUBLIC int kenos_main()
 	ticks = 0;
 	
 	p_proc_ready = proc_table;
-
+	
 	init_clock();
-	init_hd();
 	
 	restart();
 
@@ -116,7 +119,7 @@ void TestA()
 //	sw_sched();
 //	hd_intr();
 	printf("<xxxxxxhd: %x>\n", get_hd_info());
-	hd_xxx();
+//	hd_xxx();
 	while(1){
 //		disp_str("A.");
 //		printf("<Ticks: %x>", get_ticks());

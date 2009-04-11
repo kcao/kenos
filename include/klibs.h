@@ -18,29 +18,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef	_KENOS_SYSTEM_H_
-#define	_KENOS_SYSTEM_H_
+#ifndef	_KENOS_KLIBS_H_
+#define	_KENOS_KLIBS_H_
 
-#define sti() __asm__("sti"::)
-#define cli() __asm__("cli"::)
-#define nop() __asm__("nop"::)
+#include "type.h"
+#include "const.h"
 
+/* klib.S */
+PUBLIC void out_byte(t_port port, t_8 value);
+PUBLIC t_8  in_byte(t_port port);
+PUBLIC void disp_str(char * info);
+PUBLIC void disp_color_str(char * info, int color);
+PUBLIC void disable_int();
+PUBLIC void enable_int();
 
-/* Bit 9 of the EFLAGS register is set if hardware
- * interrupts are enabled. We simply need to "remember" its value when
- * calling disable_hwint. Depending on that value, we will or will not
- * re-enable hardware interrupts.
- */
-#define disable_hwint(eflags) \
-__asm__("pushf; pop %0; cli;" : "=g" ((eflags)))
-
-#define restore_hwint(eflags) \
-__asm__("push %0; popf;" :: "g" ((eflags)))
-
-#endif /* _KENOS_SYSTEM_H_ */
-
-
-
-
-
+#endif /* _KENOS_KLIBS_H_ */
 

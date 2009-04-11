@@ -5,6 +5,10 @@
                                                     Forrest Yu, 2005
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
+#ifndef	_TINIX_GLOBAL_H_
+#define	_TINIX_GLOBAL_H_
+
+
 /* EXTERN is defined as extern except in global.c */
 #ifdef	GLOBAL_VARIABLES_HERE
 #undef	EXTERN
@@ -36,4 +40,6 @@ extern	CONSOLE		console_table[];
 extern	t_pf_irq_handler	irq_table[];
 
 extern	t_sys_call	sys_call_table[];
+
+#endif /* _TINIX_GLOBAL_H_ */
 

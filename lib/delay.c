@@ -18,29 +18,21 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef	_KENOS_SYSTEM_H_
-#define	_KENOS_SYSTEM_H_
+/* obsolete */
 
-#define sti() __asm__("sti"::)
-#define cli() __asm__("cli"::)
-#define nop() __asm__("nop"::)
+/* Busy loop for a small amount of time */
+static void udelay(unsigned long n)
+{
+    if (!n)
+        return;
+    __asm__("1: dec %%eax; jne 1b;"
+        : : "a" (n * 1000));
+}
 
-
-/* Bit 9 of the EFLAGS register is set if hardware
- * interrupts are enabled. We simply need to "remember" its value when
- * calling disable_hwint. Depending on that value, we will or will not
- * re-enable hardware interrupts.
- */
-#define disable_hwint(eflags) \
-__asm__("pushf; pop %0; cli;" : "=g" ((eflags)))
-
-#define restore_hwint(eflags) \
-__asm__("push %0; popf;" :: "g" ((eflags)))
-
-#endif /* _KENOS_SYSTEM_H_ */
-
-
-
-
+static void mdelay(unsigned long n)
+{
+    while (--n)
+        udelay(1000);
+}
 
 

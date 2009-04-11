@@ -18,29 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef	_KENOS_SYSTEM_H_
-#define	_KENOS_SYSTEM_H_
+#ifndef	_KENOS_UTILS_H_
+#define	_KENOS_UTILS_H_
 
-#define sti() __asm__("sti"::)
-#define cli() __asm__("cli"::)
-#define nop() __asm__("nop"::)
+void init_ide_dev(void);
 
-
-/* Bit 9 of the EFLAGS register is set if hardware
- * interrupts are enabled. We simply need to "remember" its value when
- * calling disable_hwint. Depending on that value, we will or will not
- * re-enable hardware interrupts.
- */
-#define disable_hwint(eflags) \
-__asm__("pushf; pop %0; cli;" : "=g" ((eflags)))
-
-#define restore_hwint(eflags) \
-__asm__("push %0; popf;" :: "g" ((eflags)))
-
-#endif /* _KENOS_SYSTEM_H_ */
-
-
-
-
-
+#endif /* _KENOS_UTILS_H_ */
 
