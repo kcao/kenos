@@ -23,6 +23,7 @@
 
 #include "klibc.h"
 #include "klibs.h"
+#include "utils/assert.h"
 
 #endif /* _KENOS_UTILS_H_ */
 

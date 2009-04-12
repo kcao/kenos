@@ -349,11 +349,26 @@ static void identify_ide_dev(struct ide_device *i_dev)
 	disp_str(i_dev->model);
 	disp_str(i_dev->serial);
 	disp_str(i_dev->firmware);
-*/	
-		
-	disp_str("id_dev\n");
+*/
+//	disp_str("id_dev\n");
 	
 }
+
+/*
+ * Returns the IDE device associated with the specified minor number.
+ */
+static struct ide_device *get_ide_device(unsigned int minor)
+{
+	struct ide_controller *ctrl;
+	struct ide_device *idev;
+
+	ASSERT(minor < NR_IDE_CONTROLLERS * NR_DEVICES_PER_CONTROLLER);
+
+	ctrl = &controllers[minor / NR_DEVICES_PER_CONTROLLER];
+	idev = &ctrl->devices[minor % NR_DEVICES_PER_CONTROLLER];
+	return idev;
+}
+
 
 void print_ide_info(struct ide_device *idev, int i)
 {

@@ -32,7 +32,8 @@ LDFILE_KER	=	kernel/x86_ker.ld
 
 LDFLAGS_BOOT	=	-s -T $(LDFILE_BOOT)
 LDFLAGS_LDR	=	-s -T $(LDFILE_LDR)
-LDFLAGS_KER	=	-s -e c -T $(LDFILE_KER)
+#LDFLAGS_KER	=	-s -e c -T $(LDFILE_KER)
+LDFLAGS_KER	=	-s -T $(LDFILE_KER)
 
 BINCLUDE	=	boot/include/addr.h include/fs/fat12hdr.h \
 			boot/include/lib.h boot/include/pm.h

@@ -14,6 +14,7 @@
 #include "console.h"
 #include "global.h"
 #include "proto.h"
+#include "utils.h"
 
 
 /*======================================================================*
@@ -22,6 +23,7 @@
 PUBLIC int kenos_main()
 {
 	disp_str("----- init ata device -----\n");
+	ASSERT(1);
 	init_ide_dev();
 	disp_str("----- end of ata init -----\n");
 	
