@@ -22,6 +22,9 @@
  *======================================================================*/
 PUBLIC int kenos_main()
 {
+	unsigned int aint = *((unsigned int *)0x7c00);
+	disp_int(aint);
+
 	disp_str("----- init ata device -----\n");
 	ASSERT(1);
 	init_ide_dev();
@@ -120,7 +123,7 @@ void TestA()
 //	int i = 0;
 //	sw_sched();
 //	hd_intr();
-	printf("<xxxxxxhd: %x>\n", get_hd_info());
+//	printf("<xxxxxxhd: %x>\n", get_hd_info());
 //	hd_xxx();
 	while(1){
 //		disp_str("A.");

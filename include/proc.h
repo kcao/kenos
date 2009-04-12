@@ -70,6 +70,7 @@ typedef struct s_task {
 				STACK_SIZE_TESTB + \
 				STACK_SIZE_TESTC)
 
+#define	KENOS_DUMMY_SIZE	0x800000
 EXTERN	void		(*schedule)();
 
 

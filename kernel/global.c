@@ -39,6 +39,9 @@ PUBLIC	PROCESS	proc_table[NR_TASKS + NR_PROCS];
 
 PUBLIC	char	task_stack[STACK_SIZE_TOTAL];
 
+/**/
+PUBLIC	char	kenos_heap[KENOS_DUMMY_SIZE];
+
 PUBLIC	TTY		tty_table[NR_CONSOLES];
 PUBLIC	CONSOLE		console_table[NR_CONSOLES];
 

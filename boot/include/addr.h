@@ -27,7 +27,8 @@
 .set	OffsetOfKernelFile,	0x0000
 
 .set	BaseOfKernelFilePhyAddr, (BaseOfKernelFile * 0x10)
-.set	KernelEntryPointPhyAddr, 0x030400
+//.set	KernelEntryPointPhyAddr, 0x030400
+.set	KernelEntryPointPhyAddr, 0x300000
 
 .set	PageDirBase, 0x200000
 .set	PageTblBase, 0x201000	/* 2M + 4K */

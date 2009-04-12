@@ -41,5 +41,7 @@ extern	t_pf_irq_handler	irq_table[];
 
 extern	t_sys_call	sys_call_table[];
 
+extern	char		kenos_heap[];
+
 #endif /* _TINIX_GLOBAL_H_ */
 

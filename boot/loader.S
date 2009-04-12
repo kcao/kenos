@@ -424,8 +424,8 @@ DispMemInfo:
 	pushl	%edi
 	pushl	%ecx
 	
-	movl	$MemChkBuf, %esi	/* %esi contains the addr of MemChkBuf */
-	movl	(dwMCRNumber), %ecx	/* %ecx contains the value of dwMCRNumber */
+	movl	$MemChkBuf, %esi    /* %esi contains the addr of MemChkBuf */
+	movl	(dwMCRNumber), %ecx /* %ecx contains the value of dwMCRNumber */
 
 .DMloop:
 	movl	$5, %edx
@@ -460,7 +460,22 @@ DispMemInfo:
 	pushl	dwMemSize
 	call	DispInt
 	add	$4, %esp
+/* -------------------------------- */
+	pushl	%eax
+	push	%es
+	pushl	%edi
 	
+	movl	$0x0000, %eax
+	mov	%ax, %es
+	mov	$0x7c00, %edi /* refer to doc/kenos/mem_map */
+	
+	mov	(dwMemSize), %eax
+	movl	%eax, (%edi)
+	
+	popl	%edi
+	pop	%es
+	popl	%eax
+/* -------------------------------- */
 	pop	%ecx
 	pop	%edi
 	pop	%esi
@@ -470,13 +485,15 @@ DispMemInfo:
 
 /* setup paging */
 SetupPaging:
-	/* decide the number of PDE and pts to be initialized, based on the size of mem */
+	/* decide the number of PDE and pts to be initialized, 
+	 * based on the size of mem */
 	xor	%edx, %edx
 	mov	(dwMemSize), %eax
 	mov	$0x00400000, %ebx	/* the mem size of one page table */
 
 	div	%ebx
-	mov	%eax, %ecx	/* %ecx contains the num of pts, i.e. num of PDE */
+	mov	%eax, %ecx	/* %ecx contains the num of pts, 
+				 * i.e. num of PDE */
 	test	%edx, %edx
 	jz	.no_remainder
 	inc	%ecx
@@ -499,7 +516,9 @@ SetupPaging:
 	mov	$1024, %ebx	/* assign 1024 PTEs to each PT */
 	mul	%ebx
 	mov	%eax, %ecx	/* now %ecx contains the num of PTEs */
-	mov	$(PageTblBase), %edi	/* the header addr of this seg is PageTblBase */
+	
+	/* the header addr of this seg is PageTblBase */
+	mov	$(PageTblBase), %edi	
 	xor	%eax, %eax
 	mov	$(PG_P  | PG_USU | PG_RWW), %eax
 .SP2:
