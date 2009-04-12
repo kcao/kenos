@@ -18,21 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* obsolete */
-
-/* Busy loop for a small amount of time */
-void udelay(unsigned int n)
+/* print error msg */
+void perror(char *msg)
 {
-    if (!n)
-        return;
-    __asm__("1: dec %%eax; jne 1b;"
-        : : "a" (n * 1000));
-}
-
-void mdelay(unsigned int n)
-{
-    while (--n)
-        udelay(1000);
+	disp_str("ERROR: ");
+	disp_str(msg);
+	disp_str("\n");
 }
 
 

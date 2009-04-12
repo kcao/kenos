@@ -35,8 +35,15 @@ struct ksema {
 /*
  * the kernel mutex is implemented as a binary semaphore.
  */
-typedef struct ksema kmutex;
+typedef struct ksema struct_kmutex;
 
+int ksema_init(struct ksema *sema, unsigned int initval);
+int kmutex_init(struct_kmutex * mutex);
+
+int ksema_p(struct ksema *sem);
+int ksema_v(struct ksema *sem);
+int kmutex_lock(struct_kmutex *mut);
+int kmutex_unlock(struct_kmutex *mut);
 
 #endif /* _KENOS_KSYNC_H_ */
 

@@ -24,6 +24,8 @@
 #include "klibc.h"
 #include "klibs.h"
 #include "utils/assert.h"
+#include "utils/perror.h"
+#include "utils/kecho.h"
 
 #endif /* _KENOS_UTILS_H_ */
 

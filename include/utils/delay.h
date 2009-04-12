@@ -23,8 +23,8 @@
 #ifndef _KENOS_UT_DELAY_H_
 #define _KENOS_UT_DELAY_H_
 
-static void udelay(unsigned long n);
-static void mdelay(unsigned long n);
+static void udelay(int n);
+static void mdelay(int n);
 
 #endif /* _KENOS_UT_DELAY_H_ */
 

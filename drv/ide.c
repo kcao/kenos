@@ -37,62 +37,9 @@
  *===========================================================================*/
 
 #include "utils.h"
-#include "ide.h"
+#include "drv/ide.h"
 #include "asm/io.h"
-
-struct ide_device {
-
-	/* Pointer to the controller managing this device. */
-	struct ide_controller *controller;
-
-	/* Position of this device in the ATA chain (MASTER/SLAVE) */
-	t_8 position:1;
-
-	/* Indicates whether this device was successfully identified.
-	   If this bit is not set, the information included in this
-	   structure below this point is not valid. */
-	t_8 present:1;
-
-	/* Does this device support the PACKET command feature set? */
-	t_8 atapi:1;
-
-	/* Does this device support LBA addressing? */
-	t_8 lba:1;
-
-	/* Is DMA supported by this device? */
-	t_8 dma:1;
-
-	/* General information about the device. */
-	char model[40];
-	char serial[20];
-	char firmware[8];
-
-	/* Disk geometry. */
-	unsigned int cylinders;
-	unsigned int heads;
-	unsigned int sectors;
-	unsigned int capacity;
-};
-
-struct ide_controller {
-
-	/* Base I/O port:
-	   0x1F0 for the 1st controller
-	   0x170 for the 2nd controller */
-	int iobase;
-
-	/* List of devices attached to this controller. */
-	struct ide_device devices[NR_DEVICES_PER_CONTROLLER];
-
-	/* A controller can serve only one request at a time. This mutex
-	   protects the controller while it's being used by another task. */
-//	struct kmutex *mutex;
-
-	/* When issuing a request to the IDE controller, a task decrements
-	   the value of this semaphore (DOWN). The IRQ handler increments it
-	   when the I/O operation has completed. */
-//	struct ksema *io_sema;
-};
+#include "ksync.h"
 
 /* Kenos supports up to 2 IDE controllers addressable via their standard
    I/O ports. A PC may have more than 2 IDE controllers and controllers may
@@ -357,7 +304,7 @@ static void identify_ide_dev(struct ide_device *i_dev)
 /*
  * Returns the IDE device associated with the specified minor number.
  */
-static struct ide_device *get_ide_device(unsigned int minor)
+static struct ide_device *get_ide_dev(unsigned int minor)
 {
 	struct ide_controller *ctrl;
 	struct ide_device *idev;
@@ -367,6 +314,153 @@ static struct ide_device *get_ide_device(unsigned int minor)
 	ctrl = &controllers[minor / NR_DEVICES_PER_CONTROLLER];
 	idev = &ctrl->devices[minor % NR_DEVICES_PER_CONTROLLER];
 	return idev;
+}
+
+/**/
+static unsigned int ide_rw_blks(unsigned int minor,
+					t_32 block,
+					unsigned int nblocks,
+					void *buffer, 
+					int type)
+{
+	struct ide_device *idev;
+	struct ide_controller *ictrl;
+	t_8 sc, cl, ch, hd, cmd;
+	int iobase, i;
+	t_16 *buf = (t_16 *) buffer;
+	
+	idev = get_ide_dev(minor);
+	if (!idev->present)
+		return 0;
+
+	if (!nblocks) {
+		return 0;
+	}
+
+	if (nblocks > MAX_NBLOCKS) {
+		nblocks = MAX_NBLOCKS;
+	}
+
+	if (block + nblocks > idev->capacity) {
+		perror("out of dev capacity.");
+		return -1;
+	}
+
+	ictrl = idev->controller;
+	iobase = ictrl->iobase;
+	
+	if (0 > kmutex_lock(&(ictrl->mutex))) {
+		perror("cannot get resource.");
+		return -1;
+	}
+	
+	if (!select_dev(idev)) {
+		kmutex_unlock(&(ictrl->mutex));
+		return -1;
+	}
+	
+	if (idev->lba) {
+		sc = block & 0xff;
+		cl = (block >> 8) & 0xff;
+		ch = (block >> 16) & 0xff;
+		hd = (block >> 24) & 0xf;
+	} else {
+		/* See http://en.wikipedia.org/wiki/CHS_conversion */
+		int cyl = block / (idev->heads * idev->sectors);
+		int tmp = block % (idev->heads * idev->sectors);
+		sc = tmp % idev->sectors + 1;
+		cl = cyl & 0xff;
+		ch = (cyl >> 8) & 0xff;
+		hd = tmp / idev->sectors;
+	}
+	
+	cmd = (type == IO_READ) ? ATA_READ_BLOCK : ATA_WRITE_BLOCK;
+
+	/* See ATA/ATAPI-4 spec, section 8.27.4 */
+	outb(nblocks, iobase + ATA_NSECTOR);
+	outb(sc, iobase + ATA_SECTOR);
+	outb(cl, iobase + ATA_LCYL);
+	outb(ch, iobase + ATA_HCYL);
+	outb((idev->lba << 6) | (idev->position << 4) | hd, 
+		iobase + ATA_DRV_HEAD);
+	outb(cmd, iobase + ATA_COMMAND);
+
+	/* The host shall wait at least 400 ns before reading the 
+	 * Status register.
+	 * See PIO data in/out protocol in ATA/ATAPI-4 spec. */
+	delay(1);
+	
+	/* Wait at most 30 seconds for the BSY flag to be cleared. */
+	if (0 == wait4ctrl
+	    (ictrl, ATA_STATUS_BSY, 0, ATA_TIMEOUT)) {
+		kmutex_unlock(&(ictrl->mutex));
+		return -1;
+	}
+	
+	/* Did the device report an error? */
+	if (inb(iobase + ATA_STATUS) & ATA_STATUS_ERR) {
+		kmutex_unlock(&(ictrl->mutex));
+		return 0;
+	}
+
+	if (type == IO_WRITE) {
+		/* Transfer the data to the controller. */
+	//	for (i = 0; i < nblocks * 256; i++, buf++)
+		for (i = nblocks * 256; i > 0; i--, buf++)
+			outw(*buf, iobase + ATA_DATA);
+	}
+	
+	/* Go to sleep until the IRQ handler wakes us up.
+	 * Note: on Bochs, the IRQ is raised before we even reach this line!
+	 * This is OK, and in that case, this line will not make us go to
+	 * sleep (the semaphore will have been incremented by the IRQ handler
+	 * prior to reaching this line) */
+/**/	while (0 > ksema_p(&(ictrl->io_sema))) {
+		kinfo("wait for resource.");
+		delay(1);
+		
+	}
+	
+	/* Did the device report an error? */
+	if (inb(iobase + ATA_STATUS) & ATA_STATUS_ERR) {
+		kmutex_unlock(&(ictrl->mutex));
+		return -1;
+	}
+
+	if (type == IO_READ) {
+		/* Copy the data to the destination buffer. */
+	//	for (i = nblocks * 256; --i >= 0;)
+	//		*buf++ = inw(iobase + ATA_DATA);
+		for (i = nblocks * 256; i > 0; i--, buf++) {
+			*buf = inw(iobase + ATA_DATA);
+		}
+	}
+
+	kmutex_unlock(&(ictrl->mutex));
+
+	return nblocks;
+}
+
+/*
+ * Read the specified block from the specified device, 
+ * and copy its content to the destination buffer. 
+ * The work is delegated to ide_rw_blocks.
+ */
+static unsigned int ide_rblks(unsigned int minor, t_32 block,
+				unsigned int nblocks, void *buffer)
+{
+	return ide_rw_blks(minor, block, nblocks, buffer, IO_READ);
+}
+
+/*
+ * Write the content of the source buffer in the specified block 
+ * of thespecified device. 
+ * The work is delegated to ide_rw_blks.
+ */
+static unsigned int ide_wblks(unsigned int minor, t_32 block,
+				unsigned int nblocks, void *buffer)
+{
+	return ide_rw_blks(minor, block, nblocks, buffer, IO_WRITE);
 }
 
 
@@ -394,11 +488,23 @@ void print_ide_info(struct ide_device *idev, int i)
 	disp_str("\n\n");
 }
 
-void pri_ide_handler(int irq)
-{}
+static void ide_handler(struct ide_controller *ictrl)
+{
+    /* This wakes up the task waiting for the I/O operation to complete. */
+    ksema_v(&(ictrl->io_sema));
+}
 
-void sec_ide_handler(int irq)
-{}
+static void pri_ide_handler(int irq)
+{
+	struct ide_controller *ictrl = &controllers[PRIMARY_IDE_CONTROLLER];
+	ide_handler(ictrl);
+}
+
+static void sec_ide_handler(int irq)
+{
+	struct ide_controller *ictrl = &controllers[SECONDARY_IDE_CONTROLLER];
+	ide_handler(ictrl);
+}
 
 /*
  * Detect IDE devices and register IRQ handlers.
@@ -421,9 +527,10 @@ void init_ide_dev(void)
 	/**/
 	for (i = 0; i < NR_IDE_CONTROLLERS; i++) {
 		
-		i_ctrl = &controllers[i];	
-	//	controller->mutex = kmutex_init();
-	//	controller->io_sema = ksema_init(0);
+		i_ctrl = &controllers[i];
+		
+		kmutex_init(&(i_ctrl->mutex));
+		ksema_init(&(i_ctrl->io_sema), 0);
 		
 		/* Detect and identify IDE devices attached to this
 		 * controller. */

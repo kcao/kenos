@@ -18,21 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* obsolete */
+#ifndef	_KENOS_PERROR_H_
+#define	_KENOS_PERROR_H_
 
-/* Busy loop for a small amount of time */
-void udelay(unsigned int n)
-{
-    if (!n)
-        return;
-    __asm__("1: dec %%eax; jne 1b;"
-        : : "a" (n * 1000));
-}
+/* print error msg */
+void perror(char *msg);
 
-void mdelay(unsigned int n)
-{
-    while (--n)
-        udelay(1000);
-}
-
+#endif /* _KENOS_PERROR_H_ */
 

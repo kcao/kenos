@@ -22,8 +22,11 @@
  *======================================================================*/
 PUBLIC int kenos_main()
 {
-	unsigned int aint = *((unsigned int *)0x7c00);
-	disp_int(aint);
+//	unsigned int aint = *((unsigned int *)0x7c00);
+//	disp_int(aint);
+//	perror("");
+//	kinfo("k_info");
+
 
 	disp_str("----- init ata device -----\n");
 	ASSERT(1);

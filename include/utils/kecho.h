@@ -18,21 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* obsolete */
+#ifndef	_KENOS_KECHO_H_
+#define	_KENOS_KECHO_H_
 
-/* Busy loop for a small amount of time */
-void udelay(unsigned int n)
-{
-    if (!n)
-        return;
-    __asm__("1: dec %%eax; jne 1b;"
-        : : "a" (n * 1000));
-}
+/* print kernel info msg */
+void kinfo(char *msg);
 
-void mdelay(unsigned int n)
-{
-    while (--n)
-        udelay(1000);
-}
-
+#endif /* _KENOS_KECHO_H_ */
 

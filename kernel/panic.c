@@ -30,9 +30,9 @@
 
 PUBLIC void panic(char *msg)
 {
-	printf("kenos panic: ");
-	printf(msg);
-	printf("\n\r");
+	disp_str("kenos panic: ");
+	disp_str(msg);
+	disp_str("\n\r");
 	
 	for (;;);
 }

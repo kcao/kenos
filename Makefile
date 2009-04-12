@@ -48,13 +48,14 @@ OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o \
 			kernel/keyboard.o \
 			kernel/tty.o kernel/console.o \
 			kernel/printf.o kernel/vsprintf.o \
+			kernel/ksync.o \
 			kernel/panic.o \
 			kernel/xsched.o \
 			drv/ide.o drv/hd.o \
 			module/manmod.o \
 			fs/sfile.o \
 			lib/klib.o lib/klibc.o lib/string.o \
-			lib/delay.o
+			lib/delay.o lib/perror.o lib/kecho.o
 			
 			
 BOBJS		=	boot/boot.o boot/boot.elf boot/loader.o boot/loader.elf
@@ -85,6 +86,12 @@ lib/klibc.o:lib/klib.c
 	$(CC) $(CFLAGS) $< -o $@
 
 lib/delay.o: lib/delay.c
+	$(CC) $(CFLAGS) $< -o $@
+
+lib/perror.o: lib/perror.c
+	$(CC) $(CFLAGS) $< -o $@
+
+lib/kecho.o: lib/kecho.c
 	$(CC) $(CFLAGS) $< -o $@
 
 #
@@ -136,6 +143,9 @@ kernel/printf.o: kernel/printf.c
 	$(CC) $(CFLAGS) $< -o $@
 
 kernel/vsprintf.o: kernel/vsprintf.c
+	$(CC) $(CFLAGS) $< -o $@
+
+kernel/ksync.o: kernel/ksync.c
 	$(CC) $(CFLAGS) $< -o $@
 
 kernel/panic.o: kernel/panic.c

@@ -84,5 +84,62 @@
 #define MAX_NBLOCKS 256
 
 
+#include "ksync.h"
+
+struct ide_device {
+
+	/* Pointer to the controller managing this device. */
+	struct ide_controller *controller;
+
+	/* Position of this device in the ATA chain (MASTER/SLAVE) */
+	t_8 position:1;
+
+	/* Indicates whether this device was successfully identified.
+	   If this bit is not set, the information included in this
+	   structure below this point is not valid. */
+	t_8 present:1;
+
+	/* Does this device support the PACKET command feature set? */
+	t_8 atapi:1;
+
+	/* Does this device support LBA addressing? */
+	t_8 lba:1;
+
+	/* Is DMA supported by this device? */
+	t_8 dma:1;
+
+	/* General information about the device. */
+	char model[40];
+	char serial[20];
+	char firmware[8];
+
+	/* Disk geometry. */
+	unsigned int cylinders;
+	unsigned int heads;
+	unsigned int sectors;
+	unsigned int capacity;
+};
+
+struct ide_controller {
+
+	/* Base I/O port:
+	   0x1F0 for the 1st controller
+	   0x170 for the 2nd controller */
+	int iobase;
+
+	/* List of devices attached to this controller. */
+	struct ide_device devices[NR_DEVICES_PER_CONTROLLER];
+
+	/* A controller can serve only one request at a time. This mutex
+	   protects the controller while it's being used by another task. */
+	struct_kmutex mutex;
+
+	/* When issuing a request to the IDE controller, a task decrements
+	   the value of this semaphore (DOWN). The IRQ handler increments it
+	   when the I/O operation has completed. */
+	struct ksema io_sema;
+};
+
+
 #endif /* _KENOS_IDE_H_ */
 
