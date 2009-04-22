@@ -39,6 +39,10 @@ boot.img: boot.bin
 	dd if=boot.bin of=boot.img bs=512 count=1
 	dd if=/dev/zero of=boot.img skip=1 seek=1 bs=512 count=2879
 
+kenhdvfat12.img: boot.bin
+	dd if=boot.bin of=kenhdvfat12.img bs=512 count=1
+	dd if=/dev/zero of=kenhdvfat12.img skip=1 seek=1 bs=512 count=65519
+
 # run the os using bochs
 run: bochsrc.bxrc boot.img
 	bochs -f bochsrc.bxrc

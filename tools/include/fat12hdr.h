@@ -19,25 +19,40 @@
  ***************************************************************************/
  
 /* Floppy header of FAT12 */
-BS_OEMName:         .ascii  "KEN CCAO"    /* OEM String, 8 bytes required */
-BPB_BytsPerSec:     .2byte  512           /* Bytes per sector */
-BPB_SecPerClus:     .byte   1             /* Sector per cluster */
-BPB_ResvdSecCnt:    .2byte  1             /* Reserved sector count */
-BPB_NumFATs:        .byte   2             /* Number of FATs */
-BPB_RootEntCnt:     .2byte  224           /* Root entries count */
-BPB_TotSec16:       .2byte  2880          /* Total sector number */
-BPB_Media:          .byte   0xf0          /* Media descriptor */
-BPB_FATSz16:        .2byte  9             /* FAT size(sectors) */
-BPB_SecPerTrk:      .2byte  18            /* Sector per track */
-BPB_NumHeads:       .2byte  2             /* Number of magnetic heads */
-BPB_HiddSec:        .4byte  0             /* Number of hidden sectors */
-BPB_TotSec32:       .4byte  0             /* If TotSec16 equal 0, this works */
-BS_DrvNum:          .byte   0             /* Driver number of interrupt 13 */
-BS_Reserved1:       .byte   0             /* Reserved */
-BS_BootSig:         .byte   0x29          /* Boot signal */
-BS_VolID:           .4byte  0             /* Volume ID */
-BS_VolLab:          .ascii  "enthus 0.01" /* Volume label, 11 bytes required */
-BS_FileSysType:     .ascii  "FAT12   "    /* File system type, 8 bytes required */
+BS_OEMName:	.ascii  "KEN CCAO"	/* OEM String, 8 bytes required */
+BPB_BytsPerSec:	.2byte  512		/* Bytes per sector */
+BPB_SecPerClus:	.byte   1		/* Sector per cluster */
+BPB_ResvdSecCnt:.2byte  1		/* Reserved sector count */
+BPB_NumFATs:	.byte   2		/* Number of FATs */
+BPB_RootEntCnt:	.2byte  224		/* Root entries count */
+/* * */
+BPB_TotSec16:	.2byte  65520		/* Total sector number.
+					 * 2880 for floppy;
+					 * 65520 for 32 MB kenos harddisk. */
+/* * */
+BPB_Media:	.byte   0xf8		/* Media descriptor. 
+					 * 0xf0 for removable device;
+					 * 0xf8 for fixed device. */
+BPB_FATSz16:	.2byte  9		/* FAT size(sectors) */
+/* * */
+BPB_SecPerTrk:	.2byte  63		/* Sector per track.
+					 * 18 for 1.44MB floppy;
+					 * 63 for 32MB kenos harddisk. */
+/* * */
+BPB_NumHeads:	.2byte  16		/* Number of magnetic heads
+					 * 2 for 1.44MB floppy;
+					 * 16 for 32MB kenos hardisk */
+BPB_HiddSec:	.4byte  0		/* Number of hidden sectors */
+BPB_TotSec32:	.4byte  0		/* If TotSec16 equal 0, this works */
+/* * */
+BS_DrvNum:	.byte	0x80		/* Driver number of interrupt 13.
+					 * 0x0 for floppy;
+					 * 0x80 for hardisk. */
+BS_Reserved1:	.byte   0		/* Reserved */
+BS_BootSig:	.byte   0x29		/* Boot signal */
+BS_VolID:	.4byte  0		/* Volume ID */
+BS_VolLab:	.ascii  "enthus 0.0x"	/* Volume label, 11 bytes required */
+BS_FileSysType:	.ascii  "FAT12   "	/* File system type, 8 bytes required */
 
 .set    RootDirSectors,  14        /* Root directory sector count */
 .set    SecNoOfRootDir,  19        /* 1st sector of root directory */

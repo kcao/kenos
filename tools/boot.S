@@ -63,7 +63,7 @@ LABEL_START:
     
 /********************************************************************/
 	xorl	%eax, %eax
-	xorl	%eds, %eds
+//	xor	%ds, %ds
 
 	movw	$0x0, %ax
 	movw	%ax, %ds
