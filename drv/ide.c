@@ -154,7 +154,7 @@ static int select_dev(struct ide_device *dev)
 	/* At this point, we must ensure that BSY = 0 and DRQ = 0.
 	   See Device Selection Protocol, ATA/ATAPI-4 spec, section 9.6 */
 	if ((inb(iobase + ATA_STATUS) & (ATA_STATUS_BSY | ATA_STATUS_DRQ))) {
-		disp_str("no ready to sel\n");
+		perror("not ready to sel\n");
 		return -1;
 	}
 
@@ -166,8 +166,8 @@ static int select_dev(struct ide_device *dev)
 	/* By now, we should have BSY = 0 and DRQ = 0.
 	   See Device Selection Protocol, ATA/ATAPI-4 spec, section 9.6. */
 	if ((inb(iobase + ATA_STATUS) & (ATA_STATUS_BSY | ATA_STATUS_DRQ))) {
-		disp_str("failed to sel\n");
-		return -1;
+		perror("failed to sel\n");
+		return -2;
 	}
 
 	return 0;
@@ -354,8 +354,9 @@ static unsigned int ide_rw_blks(unsigned int minor,
 		return -1;
 	}
 	
-	if (!select_dev(idev)) {
+	if (0 != select_dev(idev)) {
 		kmutex_unlock(&(ictrl->mutex));
+		perror("failed to select dev");
 		return -1;
 	}
 	
@@ -392,14 +393,16 @@ static unsigned int ide_rw_blks(unsigned int minor,
 	
 	/* Wait at most 30 seconds for the BSY flag to be cleared. */
 	if (0 == wait4ctrl
-	    (ictrl, ATA_STATUS_BSY, 0, ATA_TIMEOUT)) {
+	    		(ictrl, ATA_STATUS_BSY, 0, ATA_TIMEOUT)) {
 		kmutex_unlock(&(ictrl->mutex));
+		perror("dev seems to busy");
 		return -1;
 	}
 	
 	/* Did the device report an error? */
 	if (inb(iobase + ATA_STATUS) & ATA_STATUS_ERR) {
 		kmutex_unlock(&(ictrl->mutex));
+		perror("met error before writing");
 		return 0;
 	}
 
@@ -417,13 +420,14 @@ static unsigned int ide_rw_blks(unsigned int minor,
 	 * prior to reaching this line) */
 /**/	while (0 > ksema_p(&(ictrl->io_sema))) {
 		kinfo("wait for resource.");
-		delay(1);
+		delay(10);
 		
 	}
 	
 	/* Did the device report an error? */
 	if (inb(iobase + ATA_STATUS) & ATA_STATUS_ERR) {
 		kmutex_unlock(&(ictrl->mutex));
+		perror("met error before reading");
 		return -1;
 	}
 
@@ -431,13 +435,14 @@ static unsigned int ide_rw_blks(unsigned int minor,
 		/* Copy the data to the destination buffer. */
 	//	for (i = nblocks * 256; --i >= 0;)
 	//		*buf++ = inw(iobase + ATA_DATA);
+		kinfo("I read...");
 		for (i = nblocks * 256; i > 0; i--, buf++) {
 			*buf = inw(iobase + ATA_DATA);
 		}
 	}
 
 	kmutex_unlock(&(ictrl->mutex));
-
+	kinfo("IO good");
 	return nblocks;
 }
 
@@ -446,7 +451,7 @@ static unsigned int ide_rw_blks(unsigned int minor,
  * and copy its content to the destination buffer. 
  * The work is delegated to ide_rw_blocks.
  */
-static unsigned int ide_rblks(unsigned int minor, t_32 block,
+unsigned int ide_rblks(unsigned int minor, t_32 block,
 				unsigned int nblocks, void *buffer)
 {
 	return ide_rw_blks(minor, block, nblocks, buffer, IO_READ);
@@ -457,7 +462,7 @@ static unsigned int ide_rblks(unsigned int minor, t_32 block,
  * of thespecified device. 
  * The work is delegated to ide_rw_blks.
  */
-static unsigned int ide_wblks(unsigned int minor, t_32 block,
+unsigned int ide_wblks(unsigned int minor, t_32 block,
 				unsigned int nblocks, void *buffer)
 {
 	return ide_rw_blks(minor, block, nblocks, buffer, IO_WRITE);

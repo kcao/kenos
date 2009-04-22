@@ -27,11 +27,14 @@ PUBLIC int kenos_main()
 //	perror("");
 //	kinfo("k_info");
 
-
 	disp_str("----- init ata device -----\n");
-	ASSERT(1);
+//	ASSERT(1);
 	init_ide_dev();
 	disp_str("----- end of ata init -----\n");
+
+//	int t = 0;
+//	char buf[1024];
+//	ide_rblks(0, 0, 2, buf);
 	
 	disp_str("-----\"kenos_main\" begins-----\n");
 
@@ -127,7 +130,7 @@ void TestA()
 //	sw_sched();
 //	hd_intr();
 //	printf("<xxxxxxhd: %x>\n", get_hd_info());
-//	hd_xxx();
+	hd_xxx();
 	while(1){
 //		disp_str("A.");
 //		printf("<Ticks: %x>", get_ticks());

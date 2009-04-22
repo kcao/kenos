@@ -23,5 +23,10 @@
 
 void init_ide_dev(void);
 
+static unsigned int ide_rblks(unsigned int minor, t_32 block,
+				unsigned int nblocks, void *buffer);
+static unsigned int ide_wblks(unsigned int minor, t_32 block,
+				unsigned int nblocks, void *buffer);
+
 #endif /* _KENOS_UTILS_H_ */
 
