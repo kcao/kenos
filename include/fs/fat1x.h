@@ -18,12 +18,25 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* print error msg */
-void perror(char *msg)
-{
-	disp_color_str("ERROR: ", 4);
-	disp_str(msg);
-	disp_str("       \n");
-}
+#ifndef	_KENOS_FAT1X_H_
+#define	_KENOS_FAT1X_H_
+
+#define CLUS_SIZE		512
+/* root directory begin sector */
+/* 0x2600 / 0x200 = 0x13 */
+#define FAT_ROOT_BEG		19
+#define FAT_ROOT_ENT_CNT	224
+/* data area start sector */
+/* 0x4200 / 0x200 = 0x21 */
+#define FAT_DATA_BEG		33
+#define FAT_TABENT_OFF		2
+
+typedef int		iFILE;
+
+
+#define	data_clus_offset(ent_nr) \
+	(FAT_DATA_BEG + (ent_nr) - FAT_TABENT_OFF)
+
+#endif /* _KENOS_FAT1X_H_ */
 
 

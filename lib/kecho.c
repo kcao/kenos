@@ -20,8 +20,8 @@
 
 void kinfo(char *msg)
 {
-	disp_str("INFO: ");
+	disp_color_str("INFO: ", 5);
 	disp_str(msg);
-	disp_str("\n");
+	disp_str("       \n");
 }
 

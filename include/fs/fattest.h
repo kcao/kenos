@@ -18,12 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* print error msg */
-void perror(char *msg)
-{
-	disp_color_str("ERROR: ", 4);
-	disp_str(msg);
-	disp_str("       \n");
-}
+#ifndef	_KENOS_FAT_TEST_H_
+#define	_KENOS_FAT_TEST_H_
+
+void test_ftab();
+void test_froot();
+void test_frdf();
+
+#endif /* _KENOS_FAT_TEST_H_ */
 
 

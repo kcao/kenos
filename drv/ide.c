@@ -329,11 +329,18 @@ static unsigned int ide_rw_blks(unsigned int minor,
 	int iobase, i;
 	t_16 *buf = (t_16 *) buffer;
 	
+//	kinfo("ide IO enter...");
+//	disp_int(minor);
+//	disp_str("              \n           ");
+	
 	idev = get_ide_dev(minor);
-	if (!idev->present)
-		return 0;
-
-	if (!nblocks) {
+	if (0 == idev->present) {
+		kinfo("device not present!");
+		return -1;
+	}
+	
+	if (0 == nblocks) {
+		kinfo("read zero block, quit!");
 		return 0;
 	}
 
@@ -403,7 +410,7 @@ static unsigned int ide_rw_blks(unsigned int minor,
 	if (inb(iobase + ATA_STATUS) & ATA_STATUS_ERR) {
 		kmutex_unlock(&(ictrl->mutex));
 		perror("met error before writing");
-		return 0;
+		return -1;
 	}
 
 	if (type == IO_WRITE) {
@@ -435,7 +442,7 @@ static unsigned int ide_rw_blks(unsigned int minor,
 		/* Copy the data to the destination buffer. */
 	//	for (i = nblocks * 256; --i >= 0;)
 	//		*buf++ = inw(iobase + ATA_DATA);
-		kinfo("I read...");
+	//	kinfo("I read...");
 		for (i = nblocks * 256; i > 0; i--, buf++) {
 			*buf = inw(iobase + ATA_DATA);
 		}

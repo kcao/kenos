@@ -18,12 +18,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* print error msg */
-void perror(char *msg)
-{
-	disp_color_str("ERROR: ", 4);
-	disp_str(msg);
-	disp_str("       \n");
-}
+#include "type.h"
+#include "drv/hd.h"
 
+/* read one cluster from offset into char buf[512] */
+int fat_rdclus(char buf[], int clus_offset)
+{
+	int rd_good = 0;
+	/* read one blk from offset into buf */
+	rd_good = ide_rblks(0, clus_offset, 1, buf);
+	
+	return rd_good;
+}
 

@@ -30,7 +30,7 @@
 
 PUBLIC void panic(char *msg)
 {
-	disp_str("kenos panic: ");
+	disp_color_str("kenos panic: ", 4);
 	disp_str(msg);
 	disp_str("\n\r");
 	

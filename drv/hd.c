@@ -22,8 +22,6 @@
 
 #include "asm/io.h"
 #include "asm/system.h"
-#include "drv/hdreg.h"
-#include "drv/blk.h"
 #include "kenos/config.h"
 #include "type.h"
 #include "const.h"
@@ -33,8 +31,11 @@
 #include "console.h"
 #include "global.h"
 #include "proto.h"
-
+#include "drv/hdreg.h"
+#include "drv/blk.h"
 #include "drv/hd.h"
+
+#include "fs/fattest.h"
 
 #define MAX_HD	2
 
@@ -100,14 +101,19 @@ PUBLIC int sys_get_hd_info()
 
 PUBLIC void sys_hd_xxx()
 {
-	char buf[1024];
+//	char buf[1024];
 	
-	unsigned int t = 0;
+//	unsigned int t = 0;
 	
-	t = ide_rblks(0, 0, 2, buf);
+//	test_ftab();
+//	test_froot();
+	test_frdf();
+
+/*	t = ide_rblks(0, 0, 2, buf);
 	disp_str("good reading: ");
 	t = 1;
-//	disp_int(t);
+	disp_int(t);
+
 	disp_int(buf[510]);
 	disp_str(" \n");
 	disp_int(buf[511]);
@@ -116,6 +122,7 @@ PUBLIC void sys_hd_xxx()
 	disp_str(" \n");
 	disp_int(buf[513]);
 	disp_str(" \n");
+*/
 	
 }
 

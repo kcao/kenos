@@ -18,12 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* print error msg */
-void perror(char *msg)
-{
-	disp_color_str("ERROR: ", 4);
-	disp_str(msg);
-	disp_str("       \n");
-}
+#ifndef	_KENOS_FAT_ROOT_H_
+#define	_KENOS_FAT_ROOT_H_
+
+#include "fs/fat1x.h"
+
+int fat_root_ent(int ent_n, char buf[]);
+iFILE get_root_ent_bname(char *fname, char rent[]);
+
+#endif /* _KENOS_FAT_ROOT_H_ */
 
 

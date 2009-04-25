@@ -18,12 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* print error msg */
-void perror(char *msg)
-{
-	disp_color_str("ERROR: ", 4);
-	disp_str(msg);
-	disp_str("       \n");
-}
+#ifndef	_KENOS_FAT_READ_CLUSTER_H_
+#define	_KENOS_FAT_READ_CLUSTER_H_
+
+/* read one cluster from offset into char buf[512] */
+int fat_rdclus(char buf[], int clus_offset);
+
+#endif /* _KENOS_FAT_READ_CLUSTER_H_ */
 
 

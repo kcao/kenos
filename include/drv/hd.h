@@ -18,15 +18,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef	_KENOS_UTILS_H_
-#define	_KENOS_UTILS_H_
+#ifndef	_KENOS_HARD_DISK_H_
+#define	_KENOS_HARD_DISK_H_
+
+#include "drv/ide.h"
 
 void init_ide_dev(void);
 
-static unsigned int ide_rblks(unsigned int minor, t_32 block,
+unsigned int ide_rblks(unsigned int minor, t_32 block,
 				unsigned int nblocks, void *buffer);
-static unsigned int ide_wblks(unsigned int minor, t_32 block,
+unsigned int ide_wblks(unsigned int minor, t_32 block,
 				unsigned int nblocks, void *buffer);
 
-#endif /* _KENOS_UTILS_H_ */
+#endif /* _KENOS_HARD_DISK_H_ */
 

@@ -54,6 +54,9 @@ OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o \
 			drv/ide.o drv/hd.o \
 			module/manmod.o \
 			fs/sfile.o \
+			fs/fatcmpfname.o \
+			fs/fattabe.o fs/fatroot.o fs/fatrdfile.o \
+			fs/fatrdclus.o fs/fattest.o \
 			lib/klib.o lib/klibc.o lib/string.o \
 			lib/delay.o lib/perror.o lib/kecho.o
 			
@@ -158,6 +161,24 @@ module/manmod.o: module/manmod.c
 	$(CC) $(CFLAGS) $< -o $@
 
 fs/sfile.o: fs/sfile.S
+	$(CC) $(CFLAGS) $< -o $@
+
+fs/fatcmpfname.o: fs/fatcmpfname.c
+	$(CC) $(CFLAGS) $< -o $@
+
+fs/fattabe.o: fs/fattabe.c
+	$(CC) $(CFLAGS) $< -o $@
+
+fs/fatroot.o: fs/fatroot.c
+	$(CC) $(CFLAGS) $< -o $@
+
+fs/fatrdfile.o: fs/fatrdfile.c
+	$(CC) $(CFLAGS) $< -o $@
+
+fs/fatrdclus.o: fs/fatrdclus.c
+	$(CC) $(CFLAGS) $< -o $@
+
+fs/fattest.o: fs/fattest.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(KERNELFILE): $(OBJS)
