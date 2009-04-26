@@ -449,7 +449,7 @@ static unsigned int ide_rw_blks(unsigned int minor,
 	}
 
 	kmutex_unlock(&(ictrl->mutex));
-	kinfo("IO good");
+//	kinfo("IO good");
 	return nblocks;
 }
 

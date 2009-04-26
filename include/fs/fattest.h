@@ -24,6 +24,7 @@
 void test_ftab();
 void test_froot();
 void test_frdf();
+void test_ld2mem();
 
 #endif /* _KENOS_FAT_TEST_H_ */
 

@@ -6,7 +6,10 @@ overall execution path.
 
 
 mem map:
-
+---
+related file:
+	boot/include/addr.h
+---
 
                xx (0x)
 0x00100000 ----------------------------
@@ -40,7 +43,7 @@ mem map:
 0x00030000 ----------------------------
                Free ()
 0x00007e00 ----------------------------
-               boot sector (0x200)
+               boot sector (0x200) -- memory size stored here too.
 0x00007c00 ----------------------------
                Free ()
 0x00000500 ----------------------------

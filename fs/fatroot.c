@@ -92,6 +92,24 @@ iFILE get_root_ent_bname(char *fname, char rent[])
 	return firstclus;
 }
 
+/* calculate the size of file, by bytes number. 
+ * 
+ * return the number of bytes. 
+ */
+long fat_fsize(char rent[])
+{
+	int b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+	long fsize = 0;
+	
+	b1 = (int)rent[0x1c] & 0xff;
+	b2 = (int)rent[0x1d] & 0xff;
+	b3 = (int)rent[0x1e] & 0xff;
+	b4 = (int)rent[0x1f] & 0xff;
+	
+	fsize = b4 * 0x1000000 + b3 * 0x10000 + b2 * 0x100 + b1;
+	
+	return fsize;
+}
 
 
 

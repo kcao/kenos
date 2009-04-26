@@ -27,6 +27,8 @@
 .set	OffsetOfKernelFile,	0x0000
 
 .set	BaseOfKernelFilePhyAddr, (BaseOfKernelFile * 0x10)
+
+/* refer x86_ker.ld for the addr number! */
 //.set	KernelEntryPointPhyAddr, 0x030400
 .set	KernelEntryPointPhyAddr, 0x300000
 

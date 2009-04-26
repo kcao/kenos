@@ -107,7 +107,9 @@ PUBLIC void sys_hd_xxx()
 	
 //	test_ftab();
 //	test_froot();
-	test_frdf();
+//	test_frdf();
+	test_ld2mem();
+	
 
 /*	t = ide_rblks(0, 0, 2, buf);
 	disp_str("good reading: ");

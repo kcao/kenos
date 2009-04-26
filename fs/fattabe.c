@@ -21,15 +21,15 @@
 #include "type.h"
 #include "drv/hd.h"
 
-int fat_next_tabent(int p_ent)
+int fat_next_tabent(int tab_ent)
 {
-	int ibytes = p_ent * 2; /* 2 bytes/entry */
+	int ibytes = tab_ent * 2; /* 2 bytes/entry */
 	int ri = ibytes % BLOCK_SIZE; /* relative ibytes */
 	
 	/* FAT1 starts at 512bytes - second blk */
 	int offset = ibytes / BLOCK_SIZE + 1;
 	
-	int lo = 0, hi = 0, result = 0;
+	int lo = 0, hi = 0, next_ent = 0;
 	char buf[BLOCK_SIZE];
 	
 	unsigned int t = 0;
@@ -37,12 +37,14 @@ int fat_next_tabent(int p_ent)
 	/* read one blk from offset into buf */
 	t = ide_rblks(0, offset, 1, buf);
 	
-	lo = (int)buf[ri];
-	hi = (int)buf[ri + 1];
+	lo = (int)buf[ri] & 0xff;
+	hi = (int)buf[ri + 1] & 0xff;
 	
-	result = hi * 256 + lo;
+	next_ent = hi * 256 + lo;
 
-	return result;
+	return next_ent;
 }
+
+
 
 

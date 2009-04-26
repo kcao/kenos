@@ -25,6 +25,7 @@
 
 int fat_root_ent(int ent_n, char buf[]);
 iFILE get_root_ent_bname(char *fname, char rent[]);
+long fat_fsize(char rent[]);
 
 #endif /* _KENOS_FAT_ROOT_H_ */
 
