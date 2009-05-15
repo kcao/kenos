@@ -4,7 +4,7 @@
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
+ *   the Free Software Foundation; either version 3 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
@@ -18,24 +18,32 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
-#include "type.h"
-#include "const.h"
-#include "protect.h"
-#include "string.h"
 #include "proc.h"
-#include "tty.h"
-#include "console.h"
-#include "global.h"
-#include "proto.h"
 
-
-PUBLIC int sys_sw_sched()
+void xsched01(PROCESS *proc_t, PROCESS **p_ready)
 {
-	
-	manmod();
-	
-	return 0;
-}
+	PROCESS	*p;
+	int	greatest_ticks = 0;
 
+	while ( 0 == greatest_ticks ) {
+		for (p = proc_t; p < proc_t + NR_TASKS + NR_PROCS; 
+			p++) {
+			
+			if (p->ticks > greatest_ticks) {
+				greatest_ticks = p->ticks;
+				(*p_ready) = p;
+			}
+		}
+
+		if (greatest_ticks == 0) {
+			for (p = proc_t; 
+				p < proc_t + NR_TASKS + NR_PROCS; 
+				p++) {
+				
+				p->ticks = p->priority / 5;
+			}
+		}
+	}
+
+}
 

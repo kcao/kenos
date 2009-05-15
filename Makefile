@@ -50,15 +50,16 @@ OBJS		=	kernel/kernel.o kernel/start.o kernel/i8259.o \
 			kernel/printf.o kernel/vsprintf.o \
 			kernel/ksync.o \
 			kernel/panic.o \
-			kernel/xsched.o \
 			drv/ide.o drv/hd.o \
 			module/manmod.o \
+			module/xsched.o \
 			fs/sfile.o \
 			fs/fatcmpfname.o \
 			fs/fattabe.o fs/fatroot.o fs/fatrdfile.o \
 			fs/fatrdclus.o fs/fattest.o \
 			lib/klib.o lib/klibc.o lib/string.o \
-			lib/delay.o lib/perror.o lib/kecho.o
+			lib/delay.o lib/perror.o lib/kecho.o \
+			lib/mem2num.o
 			
 			
 BOBJS		=	boot/boot.o boot/boot.elf boot/loader.o boot/loader.elf
@@ -95,6 +96,9 @@ lib/perror.o: lib/perror.c
 	$(CC) $(CFLAGS) $< -o $@
 
 lib/kecho.o: lib/kecho.c
+	$(CC) $(CFLAGS) $< -o $@
+	
+lib/mem2num.o: lib/mem2num.c
 	$(CC) $(CFLAGS) $< -o $@
 
 #
@@ -154,10 +158,10 @@ kernel/ksync.o: kernel/ksync.c
 kernel/panic.o: kernel/panic.c
 	$(CC) $(CFLAGS) $< -o $@
 
-kernel/xsched.o: kernel/xsched.c
+module/manmod.o: module/manmod.c
 	$(CC) $(CFLAGS) $< -o $@
 
-module/manmod.o: module/manmod.c
+module/xsched.o: module/xsched.c
 	$(CC) $(CFLAGS) $< -o $@
 
 fs/sfile.o: fs/sfile.S

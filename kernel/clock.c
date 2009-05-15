@@ -39,7 +39,7 @@ PUBLIC void clock_handler(int irq)
 		return;
 	}
 	
-	schedule();
+	schedule(proc_table, &p_proc_ready);
 
 }
 

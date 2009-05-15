@@ -39,9 +39,9 @@ related file:
 0x00090000 ----------------------------
                KERNEL.BIN (0x10000)
 0x00080000 ----------------------------
-               Kernel (obsolete) (0x50000)
+               Kernel (obsolete) (0x50000) -- xmod placed here
 0x00030000 ----------------------------
-               Free ()
+               Free ()                    -- xmod file placed here
 0x00007e00 ----------------------------
                boot sector (0x200) -- memory size stored here too.
 0x00007c00 ----------------------------

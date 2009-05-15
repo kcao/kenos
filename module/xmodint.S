@@ -18,81 +18,43 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* syscall.S */
-
-#include "sconst.h"
-
-.set INT_VECTOR_SYS_CALL, 0x90
-.set _NR_get_ticks,	0
-.set _NR_write,		1
-.set _NR_hd_xxx,	2
-.set _NR_get_hd_info,	3
-.set _NR_sw_sched,	4
-.set _NR_ld_mod,	5
-/* the same to the definition of sys_call_table in global.c */
-
-
-.code32
 
 .section .text
 
-.globl get_ticks
-.globl write
-.globl hd_xxx
-.globl get_hd_info
-.globl sw_sched
-.globl ld_mod
+.globl _start
 
-/* caution：%dx has been changed by save(), 
-  so we cannot use %edx to pass para */
+/* xsched(PROCESS *proc_t, xx) */
+_start:
+	nop
+	nop
+	jmp	xmod_entry
 
-/* get_ticks */
-.type get_ticks, @function
-get_ticks:
-	mov	$_NR_get_ticks, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
+#include "lib.h"
 
-
-/* write */
-.type write, @function
-write:
-	mov	$_NR_write, %eax
-	mov	4(%esp), %ebx
-	mov	8(%esp), %ecx
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-
-
-/* hard disk interrupt */
-.type hd_intr, @function
-hd_xxx:
-	mov	$_NR_hd_xxx, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-
-/* get harddisk info */
-.type get_hd_info, @function
-get_hd_info:
-	mov	$_NR_get_hd_info, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-/* switch scheduler */
-.type sw_sched, @function
-sw_sched:
-	mov	$_NR_sw_sched, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-/* load mod file to memory */
-.type ld_mod, @function
-ld_mod:
-	mov	$_NR_ld_mod, %eax
-	mov	4(%esp), %ebx
-	int	$INT_VECTOR_SYS_CALL
+xmod_entry:
+	pushl	%ebp
+	movl	%esp, %ebp
+	
+//	movl	8(%ebp), %eax
+//	movb	$1, %al
+//	call	DispAL
+	
+//	movl	$3, %eax
+	xorl	%eax, %eax
+	movl	12(%ebp), %eax	/* argv[2] */
+	pushl	%eax
+	xorl	%eax, %eax
+	movl	8(%ebp), %eax	/* argv[1] */
+	pushl	%eax
+	call	xsched01	/* argv[0] */
+	addl	$8, %esp
+	
+//	movb	$2, %al
+//	call	DispAL
+//	jmp	.
+	
+	movl	%ebp, %esp
+	popl	%ebp
 	ret
 
 

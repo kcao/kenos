@@ -74,9 +74,11 @@ PUBLIC void sys_hd_xxx();
 
 /* proc.c */
 PUBLIC void sched0();
+PUBLIC void sched01();
 
 /* manmod.c */
-PUBLIC	int manmod(); 
+PUBLIC	int manmod();
+PUBLIC	int sys_ld_mod(char *fname);
 
 /* sfile.S */
 PUBLIC void smodf();
@@ -133,6 +135,7 @@ PUBLIC	void	write(char* buf, int len);
 PUBLIC	int	get_hd_info();
 PUBLIC	int	sw_sched();
 PUBLIC	int	hd_xxx();
+PUBLIC	int	ld_mod(char *fname);
 /* add more sys_call here */
 
 

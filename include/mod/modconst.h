@@ -18,81 +18,34 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/* syscall.S */
+#ifndef	_KENOS_MOD_CONST_H_
+#define	_KENOS_MOD_CONST_H_
 
-#include "sconst.h"
+#define	BaseOfModFilePhyAddr	0x7e00
+#define	XModPhyAddr		0x30400
 
-.set INT_VECTOR_SYS_CALL, 0x90
-.set _NR_get_ticks,	0
-.set _NR_write,		1
-.set _NR_hd_xxx,	2
-.set _NR_get_hd_info,	3
-.set _NR_sw_sched,	4
-.set _NR_ld_mod,	5
-/* the same to the definition of sys_call_table in global.c */
+/* elf header */
+#define	ELFphoffOFFSET		0x1c
+#define	ELFphentsizeOFFSET	0x2a
+#define	ELFphnumOFFSET		0x2c
 
+#define	ELFphoffLEN		4
+#define	ELFphentsizeLEN		2
+#define	ELFphnumLEN		2
 
-.code32
+/* program header */
+#define	PHtypeOFFSET		0x0
+#define	PHoffsetOFFSET		0x4
+#define	PHvaddrOFFSET		0x8
+#define	PHpaddrOFFSET		0xc
+#define	PHfileszOFFSET		0x10
 
-.section .text
+#define	PHtypeLEN		4
+#define	PHoffsetLEN		4
+#define	PHvaddrLEN		4
+#define	PHpaddrLEN		4
+#define	PHfileszLEN		4
 
-.globl get_ticks
-.globl write
-.globl hd_xxx
-.globl get_hd_info
-.globl sw_sched
-.globl ld_mod
-
-/* caution：%dx has been changed by save(), 
-  so we cannot use %edx to pass para */
-
-/* get_ticks */
-.type get_ticks, @function
-get_ticks:
-	mov	$_NR_get_ticks, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-
-/* write */
-.type write, @function
-write:
-	mov	$_NR_write, %eax
-	mov	4(%esp), %ebx
-	mov	8(%esp), %ecx
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-
-
-/* hard disk interrupt */
-.type hd_intr, @function
-hd_xxx:
-	mov	$_NR_hd_xxx, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-
-/* get harddisk info */
-.type get_hd_info, @function
-get_hd_info:
-	mov	$_NR_get_hd_info, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-/* switch scheduler */
-.type sw_sched, @function
-sw_sched:
-	mov	$_NR_sw_sched, %eax
-	int	$INT_VECTOR_SYS_CALL
-	ret
-
-/* load mod file to memory */
-.type ld_mod, @function
-ld_mod:
-	mov	$_NR_ld_mod, %eax
-	mov	4(%esp), %ebx
-	int	$INT_VECTOR_SYS_CALL
-	ret
+#endif /* _KENOS_MOD_CONST_H_ */
 
 

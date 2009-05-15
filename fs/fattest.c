@@ -96,15 +96,16 @@ void test_ld2mem()
 	
 	char *xschedbuf = (char *)0x7e00;
 	
-	p_file = get_root_ent_bname("BBB.TXT", rbuf);
+	p_file = get_root_ent_bname("XMOD.ELF", rbuf);
 	fsize = fat_fsize(rbuf);
 	
 	fat_rdfile(xschedbuf, fsize, p_file);
 	
-	xschedbuf[652] = xschedbuf[653] = '\0';
-	disp_str(xschedbuf);
+//	xschedbuf[652] = xschedbuf[653] = '\0';
+//	disp_str(xschedbuf);
+	disp_str("==============                             \n");
+	disp_int(fsize);
 	disp_str("                                           \n");
-	/*
 	for (i = 0; i < 3; i++) {
 		t = (int)xschedbuf[i];
 		t = t & 0x0ff;
@@ -112,7 +113,7 @@ void test_ld2mem()
 		disp_str(((i + 1) % 8 == 0) ? "           \n      " : "  ");
 	}
 	disp_str("                                           \n");
-	*/
+	
 	disp_str("==============                             \n");
 	
 }

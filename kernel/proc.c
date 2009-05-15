@@ -19,26 +19,35 @@
 /*======================================================================*
                               schedule
  *======================================================================*/
-PUBLIC void sched0()
+PUBLIC void sched0(PROCESS *proc_t, PROCESS **p_ready)
 {
-	PROCESS*	p;
-	int		greatest_ticks = 0;
+	PROCESS	*p;
+	int	greatest_ticks = 0;
 
 	while ( 0 == greatest_ticks ) {
-		for (p = proc_table; p < proc_table + NR_TASKS + NR_PROCS; p++) {
+		for (p = proc_t; p < proc_t + NR_TASKS + NR_PROCS; 
+			p++) {
+			
 			if (p->ticks > greatest_ticks) {
 				greatest_ticks = p->ticks;
-				p_proc_ready = p;
+			//	p_proc_ready = p;
+				(*p_ready) = p;
 			}
 		}
 
 		if (greatest_ticks == 0) {
-			for (p = proc_table; p < proc_table + NR_TASKS + NR_PROCS; p++) {
+			for (p = proc_t; 
+				p < proc_t + NR_TASKS + NR_PROCS; 
+				p++) {
+				
 				p->ticks = p->priority;
 			}
 		}
 	}
 }
+
+PUBLIC void sched01(PROCESS *proc_t, PROCESS **p_ready)
+{}
 
 /*======================================================================*
                            sys_get_ticks

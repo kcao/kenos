@@ -16,6 +16,8 @@
 #include "keyboard.h"
 #include "proto.h"
 
+#include "mod/manmod.h"
+
 
 #define TTY_FIRST	(tty_table)
 #define TTY_END		(tty_table + NR_CONSOLES)
@@ -106,10 +108,20 @@ PUBLIC void in_process(TTY* p_tty, t_32 key)
 		case F9:
 		case F10:
 		case F11:
+			if ((key & FLAG_ALT_L) || (key & FLAG_ALT_R)) 
+			{	/* Alt + F1~F11 */
+				select_console(raw_code - F1);
+			}
+			break;
 		case F12:
 			if ((key & FLAG_ALT_L) || (key & FLAG_ALT_R)) 
-			{	/* Alt + F1~F12 */
-				select_console(raw_code - F1);
+			{	
+				if (schedule != sched0) {
+					schedule = sched0;
+				}
+				else {
+					schedule = (xmodfunc)XModPhyAddr;
+				}
 			}
 			break;
 		default:

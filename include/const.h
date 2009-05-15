@@ -129,6 +129,6 @@
 #define SEC_IDE_IRQ	15
 
 /* system call */
-#define	NR_SYS_CALL	5	/* add more sys_call here */
+#define	NR_SYS_CALL	6	/* add more sys_call here */
 
 #endif /* _TINIX_CONST_H_ */

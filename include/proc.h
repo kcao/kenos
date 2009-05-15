@@ -8,6 +8,9 @@
 #ifndef	_TINIX_PROC_H_
 #define	_TINIX_PROC_H_
 
+#include "type.h"
+#include "protect.h"
+
 typedef struct s_stackframe {	// proc_ptr points here		↑Low
 	t_32	gs;		// ┓
 	t_32	fs;		// ┃
@@ -71,8 +74,9 @@ typedef struct s_task {
 				STACK_SIZE_TESTC)
 
 #define	KENOS_DUMMY_SIZE	0x800000
-EXTERN	void		(*schedule)();
 
+/* EXTERN */
+extern	void	(*schedule)(PROCESS *proc_t, PROCESS **p_ready);
 
 #endif /* _TINIX_PROC_H_ */
 

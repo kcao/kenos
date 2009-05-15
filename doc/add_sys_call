@@ -9,6 +9,7 @@ kernel/global.c:
 
 /* sys_call name */
 kernel/syscall.S
+_NR_xxx
 .globl xxx
 .type xxx @function
 

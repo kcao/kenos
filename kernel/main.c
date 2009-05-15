@@ -100,10 +100,10 @@ PUBLIC int kenos_main()
 		p_task++;
 		selector_ldt += 1 << 3;
 	}
-	proc_table[0].ticks = proc_table[0].priority = 15;
+	proc_table[0].ticks = proc_table[0].priority = 315;
 	proc_table[1].ticks = proc_table[1].priority = 5;
-	proc_table[2].ticks = proc_table[2].priority = 5;
-	proc_table[3].ticks = proc_table[3].priority = 5;
+	proc_table[2].ticks = proc_table[2].priority = 105;
+	proc_table[3].ticks = proc_table[3].priority = 105;
 	
 	proc_table[1].nr_tty = 0;
 	proc_table[2].nr_tty = 1;
@@ -130,10 +130,12 @@ void TestA()
 //	sw_sched();
 //	hd_intr();
 //	printf("<xxxxxxhd: %x>\n", get_hd_info());
-	hd_xxx();
+//	hd_xxx();
+	ld_mod("XMOD.ELF");
+	
 	while(1){
 //		disp_str("A.");
-//		printf("<Ticks: %x>", get_ticks());
+		printf("<Ticks: %x>", get_ticks());
 //		sw_sched();
 		milli_delay(100);
 	}
@@ -147,7 +149,7 @@ void TestB()
 	int i = 0;
 	while(1){
 //		disp_str("B.");
-//		printf("B");
+		printf("B");
 		milli_delay(100);
 	}
 }
@@ -161,7 +163,7 @@ void TestC()
 	int i = 0;
 	while(1){
 //		disp_str("C.");
-//		printf("C");
+		printf("C");
 		milli_delay(100);
 	}
 }

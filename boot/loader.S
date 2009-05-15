@@ -549,12 +549,27 @@ SetupPaging:
 	and place the kernel properly according to the info in Program Header */
 InitKernel:
 	xor	%esi, %esi
+	
+	/* ecx = pELFHdr->e_phnum */
 	movw	(BaseOfKernelFilePhyAddr + 0x2c), %cx
 	movzx	%cx, %ecx
 	
+	/* esi = pELFHdr->e_phoff */
 	mov	(BaseOfKernelFilePhyAddr + 0x1c), %esi
 	add	$BaseOfKernelFilePhyAddr, %esi
-	
+
+/*
+ * for (i = 0; i < %ecx; i++) {
+ * 	if (p_type == 0) {
+ *		continue;
+ *		
+ *	}
+ *	
+ *	memcpy(dst, src, size);
+ *	s = s->next;	// s += e_phentsize
+ * }
+ *
+ **/
 .IKBegin:
 	mov	0(%esi), %eax
 	cmp	$0, %eax

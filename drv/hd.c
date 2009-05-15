@@ -35,7 +35,6 @@
 #include "drv/blk.h"
 #include "drv/hd.h"
 
-#include "fs/fattest.h"
 
 #define MAX_HD	2
 
@@ -108,8 +107,8 @@ PUBLIC void sys_hd_xxx()
 //	test_ftab();
 //	test_froot();
 //	test_frdf();
-	test_ld2mem();
-	
+//	test_ld2mem();
+		
 
 /*	t = ide_rblks(0, 0, 2, buf);
 	disp_str("good reading: ");
