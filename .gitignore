@@ -1,0 +1,9 @@
+*.[oa]
+*~
+KERNEL.BIN
+bochsout.txt
+boot.img
+boot/LOADER.BIN
+boot/boot.bin
+boot/boot.elf
+boot/loader.elf
