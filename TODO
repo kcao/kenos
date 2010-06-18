@@ -1,14 +1,19 @@
-
+1.
 load user program.
 	refer sh, exec function 
 
+2.
 load module.
 
+3.
 dynamic sheduler module.
 
+4.
 add make clean.
 
-fix this compile error(4.4.3).
-fs/sfile.S: Assembler messages:
-fs/sfile.S:35: Error: suffix or operands invalid for `push'
-fs/sfile.S:46: Error: suffix or operands invalid for `pop'
+5.
+support x86_64 host(?)
+	fix this compile error(4.4.3).
+	fs/sfile.S: Assembler messages:
+	fs/sfile.S:35: Error: suffix or operands invalid for `push'
+	fs/sfile.S:46: Error: suffix or operands invalid for `pop'
